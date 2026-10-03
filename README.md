@@ -10,6 +10,7 @@ This repository currently contains:
 - **Phase 4** — Cybersecurity Skill Tree & Evidence system
 - **Phase 5** — Cybersecurity Portfolio & Project Showcase
 - **Phase 6** — Technical Writeups & Cybersecurity Knowledge Base
+- **Phase 7** — Cyber Labs & Practical Training Environments
 
 ## Requirements
 
@@ -45,6 +46,8 @@ Schema and seed data (including Arena challenges/events) load automatically on t
 9. `09-seed-portfolio.sql` — demo portfolios/projects  
 10. `10-knowledge-schema.sql` — writeup relations & knowledge articles  
 11. `11-seed-knowledge.sql` — demo writeups & knowledge articles  
+12. `12-labs-schema.sql` — Cyber Labs tables + FKs to stubs  
+13. `13-seed-labs.sql` — demo labs, tasks, validations, hints  
 
 ### Reset database (re-seed)
 
@@ -117,6 +120,59 @@ Accounts with `moderator` or `admin` roles can:
 - Soft-delete content
 
 Actions are written to `activity_logs`.
+
+## Cyber Labs (Phase 7)
+
+Hands-on multi-step training environments — larger than Arena CTF challenges, with tasks, timers, and isolated lab gateways.
+
+> Arena = short focused problems. Labs = investigate / analyze / report workflows. The web app never runs `docker` from user input; a controlled Lab Orchestrator (simulated in v1) provisions environments from approved templates only.
+
+Features:
+
+- Lab catalog with categories, difficulty, skills, prerequisites (recommended/required)
+- Multi-step tasks with dependencies, hints, and hashed answer validation
+- Per-instance secrets (IPs, flags, IOCs) — never exposed via public lab metadata
+- Instance lifecycle: start → provision → run → reset/stop/expire → cleanup
+- Server-authoritative timer (`TIMESTAMPDIFF` vs MySQL `NOW()`)
+- Browser lab gateway (`/labs/gateway/{id}`) with ownership checks
+- Completion → Skill Evidence (`source_type = lab`) + portfolio + writeup CTA
+- Admin authoring (`/admin/labs`) — content vs infra roles for resource limits
+- Rate limits on start / reset / submit / hints
+- Concurrent instance limits (per-user and global)
+
+### First-version execution model
+
+v1 uses a **simulated orchestrator** (no Docker-in-Docker). Templates define allowed environments; the gateway renders a per-instance simulated target. Architecture is ready for a future HTTP orchestrator (`LABS_ORCHESTRATOR=http`) without rewriting controllers.
+
+### Key URLs
+
+| Path | Purpose |
+|------|---------|
+| `/labs` | Lab catalog |
+| `/labs/{slug}` | Lab detail |
+| `/labs/{slug}/start` | Start instance (POST) |
+| `/labs/{slug}/instance/{id}` | Active lab session |
+| `/labs/gateway/{id}` | Lab environment gateway |
+| `/labs/history` | Personal lab history |
+| `/admin/labs` | Author / publish labs |
+
+### Demo labs (after seed)
+
+- Vulnerable Web Application (intermediate)
+- Suspicious Network Traffic (beginner)
+- Compromised Workstation (intermediate)
+- Web Server Compromise (advanced)
+- Linux Security Investigation (intermediate)
+
+Accounts: start labs as `student1` / `Student@123!`. Manage as `instructor1`.
+
+### Security notes
+
+- Never accept Docker commands or Compose YAML from browsers
+- Never expose `lab_task_validations.validation_config` or raw `runtime_secrets` to students
+- Flag/answer comparison uses `hash_equals` / SHA-256 where applicable
+- Gateway enforces authentication, ownership, ready status, and expiry
+- See `docs/LABS_TEST_CHECKLIST.md`
 
 ## Writeups & Knowledge Base (Phase 6)
 

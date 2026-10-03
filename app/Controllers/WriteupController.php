@@ -11,6 +11,7 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Models\User;
 use App\Services\ContentReactionService;
+use App\Services\LabService;
 use App\Services\WriteupService;
 use InvalidArgumentException;
 use RuntimeException;
@@ -344,6 +345,32 @@ final class WriteupController extends Controller
         }
 
         $formData = $isEdit ? $writeup : [];
+        if (!$isEdit && $request->method() === 'GET') {
+            $labSlug = trim((string) $request->input('lab', ''));
+            if ($labSlug !== '') {
+                $prefillLab = LabService::findBySlug($labSlug);
+                if ($prefillLab !== null) {
+                    $formData['title'] = 'Writeup: ' . (string) $prefillLab['title'];
+                    $formData['short_description'] = 'Lab walkthrough for ' . (string) $prefillLab['title'];
+                    if (!empty($prefillLab['category_id'])) {
+                        $labCat = Database::fetch(
+                            'SELECT slug FROM lab_categories WHERE id = ? LIMIT 1',
+                            [(int) $prefillLab['category_id']]
+                        );
+                        if ($labCat !== null) {
+                            $wuCat = Database::fetch(
+                                'SELECT id FROM writeup_categories WHERE slug = ? LIMIT 1',
+                                [(string) $labCat['slug']]
+                            );
+                            if ($wuCat !== null) {
+                                $formData['category_id'] = (int) $wuCat['id'];
+                            }
+                        }
+                    }
+                    $formData['difficulty'] = (string) ($prefillLab['difficulty'] ?? 'beginner');
+                }
+            }
+        }
         if ($request->method() === 'POST') {
             $formData = array_merge($formData, [
                 'title' => (string) $request->input('title', ''),

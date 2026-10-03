@@ -159,8 +159,26 @@ final class PortfolioService
             'education' => self::education($user->id),
             'experience' => self::experience($user->id, $viewerId),
             'certifications' => self::certifications($user->id, $viewerId),
+            'completed_labs' => self::completedLabs($user->id),
             'is_owner' => $viewerId === $user->id,
         ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function completedLabs(int $userId): array
+    {
+        return Database::fetchAll(
+            "SELECT l.title, l.slug, l.difficulty, lc.score, lc.completed_at, c.name AS category_name
+             FROM lab_completions lc
+             INNER JOIN labs l ON l.id = lc.lab_id
+             LEFT JOIN lab_categories c ON c.id = l.category_id
+             WHERE lc.user_id = ? AND lc.show_on_portfolio = 1
+             ORDER BY lc.completed_at DESC
+             LIMIT 12",
+            [$userId]
+        );
     }
 
     /**

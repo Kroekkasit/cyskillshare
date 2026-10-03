@@ -6,6 +6,7 @@
  * @var array{discussions:int,solved_week:int,members:int} $stats
  * @var list<array<string, mixed>> $recentDiscussions
  * @var list<array<string, mixed>> $latestWriteups
+ * @var list<array<string, mixed>> $recommendedLabs
  */
 $hour = (int) date('G');
 $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
@@ -46,6 +47,18 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good
         </ul>
     <?php endif; ?>
 </div>
+
+<?php if (($recommendedLabs ?? []) !== []): ?>
+<div class="card">
+    <h2>Recommended Labs</h2>
+    <div class="lab-grid lab-grid-compact">
+        <?php foreach ($recommendedLabs as $lab): ?>
+            <?php \App\Core\View::partial('labs/partials/lab-card', ['lab' => $lab]); ?>
+        <?php endforeach; ?>
+    </div>
+    <a class="btn" href="<?= e(url('/labs')) ?>">Browse all labs</a>
+</div>
+<?php endif; ?>
 
 <?php if ($latestWriteups !== []): ?>
 <div class="card">

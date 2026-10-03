@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Models\SkillCategory;
+use App\Services\LabService;
 use App\Services\SkillService;
 use App\Services\SkillTreeService;
 use InvalidArgumentException;
@@ -67,6 +68,13 @@ final class SkillController extends Controller
         $nextLevel = min(5, $currentLevel + 1);
         $nextLevelName = $detail['levels'][$nextLevel]->name ?? \App\Models\SkillLevel::nameFor($nextLevel);
 
+        $practiceLabs = LabService::list(
+            ['skill' => $slug, 'sort' => 'recent'],
+            1,
+            6,
+            Auth::id()
+        )['items'];
+
         $this->view('skills/show', [
             'title' => $detail['skill']->name . ' — Skill Tree',
             'detail' => $detail,
@@ -74,6 +82,7 @@ final class SkillController extends Controller
             'showProgress' => Auth::check() && $currentLevel < 5,
             'learnArticles' => $detail['learn_articles'] ?? [],
             'learnWriteups' => $detail['learn_writeups'] ?? [],
+            'practiceLabs' => $practiceLabs,
         ]);
     }
 

@@ -39,6 +39,8 @@ services:
       - ./database/seed_portfolio.sql:/docker-entrypoint-initdb.d/09-seed-portfolio.sql:ro
       - ./database/knowledge_schema.sql:/docker-entrypoint-initdb.d/10-knowledge-schema.sql:ro
       - ./database/seed_knowledge.sql:/docker-entrypoint-initdb.d/11-seed-knowledge.sql:ro
+      - ./database/labs_schema.sql:/docker-entrypoint-initdb.d/12-labs-schema.sql:ro
+      - ./database/seed_labs.sql:/docker-entrypoint-initdb.d/13-seed-labs.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s

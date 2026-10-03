@@ -14,6 +14,10 @@ use App\Controllers\CommunityController;
 use App\Controllers\HomeController;
 use App\Controllers\KnowledgeController;
 use App\Controllers\KnowledgeReviewController;
+use App\Controllers\LabAccessController;
+use App\Controllers\LabAdminController;
+use App\Controllers\LabController;
+use App\Controllers\LabInstanceController;
 use App\Controllers\ModerationController;
 use App\Controllers\NotificationController;
 use App\Controllers\PortfolioAdminController;
@@ -179,6 +183,35 @@ $router->post('/admin/portfolio/{id}/feature', [PortfolioAdminController::class,
 $router->get('/admin/projects/verification', [ProjectVerificationController::class, 'index'], [AuthMiddleware::class]);
 $router->post('/admin/projects/verification/{id}/accept', [ProjectVerificationController::class, 'accept'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/admin/projects/verification/{id}/reject', [ProjectVerificationController::class, 'reject'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// Cyber Labs — static paths before parameterized routes
+$router->get('/labs', [LabController::class, 'index']);
+$router->get('/labs/history', [LabController::class, 'history'], [AuthMiddleware::class]);
+$router->get('/labs/id/{id}', [LabController::class, 'redirectById']);
+$router->get('/labs/gateway/{id}', [LabAccessController::class, 'gateway'], [AuthMiddleware::class]);
+$router->post('/labs/{slug}/start', [LabController::class, 'start'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/labs/{slug}/feedback', [LabController::class, 'feedback'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/labs/{slug}/instance/{id}', [LabInstanceController::class, 'show'], [AuthMiddleware::class]);
+$router->get('/labs/{slug}/instance/{id}/status', [LabInstanceController::class, 'status'], [AuthMiddleware::class]);
+$router->get('/labs/{slug}/instance/{id}/complete', [LabInstanceController::class, 'complete'], [AuthMiddleware::class]);
+$router->post('/labs/{slug}/instance/{id}/stop', [LabInstanceController::class, 'stop'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/labs/{slug}/instance/{id}/reset', [LabInstanceController::class, 'reset'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/labs/{slug}/instance/{id}/tasks/{taskId}/submit', [LabInstanceController::class, 'submitTask'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/labs/{slug}/instance/{id}/tasks/{taskId}/hints/{hintId}', [LabInstanceController::class, 'revealHint'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/labs/{slug}', [LabController::class, 'show']);
+
+// Lab admin
+$router->get('/admin/labs', [LabAdminController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/admin/labs/create', [LabAdminController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/admin/labs/create', [LabAdminController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/admin/labs/{id}/edit', [LabAdminController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/admin/labs/{id}/edit', [LabAdminController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/labs/{id}/publish', [LabAdminController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/labs/{id}/archive', [LabAdminController::class, 'archive'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/labs/{id}/feature', [LabAdminController::class, 'feature'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/admin/labs/{id}/tasks', [LabAdminController::class, 'tasksForm'], [AuthMiddleware::class]);
+$router->post('/admin/labs/{id}/tasks', [LabAdminController::class, 'addTask'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/labs/sweep', [LabAdminController::class, 'sweep'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // Writeups — static paths before parameterized routes
 $router->get('/writeups', [WriteupController::class, 'index']);

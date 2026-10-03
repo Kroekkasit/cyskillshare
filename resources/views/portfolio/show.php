@@ -12,6 +12,7 @@
  * @var list<array<string, mixed>> $experience
  * @var list<array<string, mixed>> $certifications
  * @var list<array<string, mixed>> $featured_writeups
+ * @var list<array<string, mixed>> $completed_labs
  * @var bool $is_owner
  */
 ?>
@@ -117,6 +118,21 @@
             <?php \App\Core\View::partial('partials/writeup-card', ['writeup' => $wu]); ?>
         <?php endforeach; ?>
     </div>
+</section>
+<?php endif; ?>
+
+<?php if (($completed_labs ?? []) !== []): ?>
+<section class="card portfolio-section">
+    <h2>Completed Labs</h2>
+    <ul class="result-list">
+        <?php foreach ($completed_labs as $lab): ?>
+            <li>
+                <a href="<?= e(url('/labs/' . $lab['slug'])) ?>"><?= e((string) $lab['title']) ?></a>
+                <span class="pill"><?= (int) ($lab['score'] ?? 0) ?> pts</span>
+                <div class="muted small"><?= e((string) ($lab['category_name'] ?? '')) ?> · <?= e(time_ago((string) $lab['completed_at'])) ?></div>
+            </li>
+        <?php endforeach; ?>
+    </ul>
 </section>
 <?php endif; ?>
 

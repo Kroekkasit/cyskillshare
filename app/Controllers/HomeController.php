@@ -11,6 +11,7 @@ use App\Core\Request;
 use App\Models\Channel;
 use App\Models\Thread;
 use App\Models\User;
+use App\Services\LabRecommendationService;
 use App\Services\WriteupService;
 
 final class HomeController extends Controller
@@ -38,6 +39,7 @@ final class HomeController extends Controller
         ];
 
         $latestWriteups = WriteupService::list(['sort' => 'recent'], 1, 4)['items'];
+        $recommendedLabs = LabRecommendationService::forUser(Auth::id(), 3);
 
         $this->view('pages/home', [
             'title' => 'CySkillShare',
@@ -47,6 +49,7 @@ final class HomeController extends Controller
             'stats' => $stats,
             'recentDiscussions' => Thread::recent(6),
             'latestWriteups' => $latestWriteups,
+            'recommendedLabs' => $recommendedLabs,
             'channelsGrouped' => Channel::groupedForSidebar(),
             'activeChannel' => null,
         ]);

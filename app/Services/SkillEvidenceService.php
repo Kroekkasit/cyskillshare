@@ -162,23 +162,47 @@ final class SkillEvidenceService
     }
 
     /**
-     * Hook for future lab system.
+     * Record evidence after a Cyber Lab completion (idempotent per skill mapping).
      */
-    public static function recordLabEvidence(int $userId, int $labId, string $title, array $skillIds): void
+    public static function recordLabEvidence(int $userId, int $labId): void
     {
-        foreach ($skillIds as $skillId) {
+        $lab = Database::fetch('SELECT id, title, difficulty FROM labs WHERE id = ? LIMIT 1', [$labId]);
+        if ($lab === null) {
+            return;
+        }
+
+        $mappings = Database::fetchAll(
+            'SELECT skill_id, weight FROM lab_skills WHERE lab_id = ?',
+            [$labId]
+        );
+        if ($mappings === []) {
+            return;
+        }
+
+        $labDiffMap = [
+            'beginner' => 2,
+            'intermediate' => 3,
+            'advanced' => 4,
+            'expert' => 5,
+        ];
+        $strength = $labDiffMap[(string) ($lab['difficulty'] ?? 'intermediate')] ?? 3;
+
+        foreach ($mappings as $map) {
+            $skillId = (int) $map['skill_id'];
+            $weight = (float) $map['weight'];
+            $effective = max(1, min(5, (int) round($strength * max(0.3, min(1.5, $weight)))));
             self::upsertEvidence([
                 'user_id' => $userId,
-                'skill_id' => (int) $skillId,
+                'skill_id' => $skillId,
                 'evidence_type' => 'lab',
                 'source_type' => 'lab',
                 'source_id' => $labId,
-                'title' => $title,
-                'description' => 'Lab completion',
-                'strength' => 3,
+                'title' => (string) $lab['title'],
+                'description' => 'Completed Cyber Lab (' . $lab['difficulty'] . ')',
+                'strength' => $effective,
                 'status' => 'accepted',
             ]);
-            SkillProgressService::recalculateUserSkill($userId, (int) $skillId);
+            SkillProgressService::recalculateUserSkill($userId, $skillId);
         }
     }
 
@@ -364,7 +388,7 @@ final class SkillEvidenceService
             'reply' => null,
             'writeup' => '/writeups/id/' . $sourceId,
             'project' => null, // resolved via project detail when username known
-            'lab' => null,
+            'lab' => '/labs/id/' . $sourceId,
             default => null,
         };
     }

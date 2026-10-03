@@ -15,14 +15,15 @@ final class SearchService
      *   tags: list<array<string, mixed>>,
      *   projects: list<array<string, mixed>>,
      *   writeups: list<array<string, mixed>>,
-     *   knowledge: list<array<string, mixed>>
+     *   knowledge: list<array<string, mixed>>,
+     *   labs: list<array<string, mixed>>
      * }
      */
     public static function search(string $query, int $limit = 20): array
     {
         $q = trim($query);
         if ($q === '' || mb_strlen($q) < 2) {
-            return ['threads' => [], 'users' => [], 'tags' => [], 'projects' => [], 'writeups' => [], 'knowledge' => []];
+            return ['threads' => [], 'users' => [], 'tags' => [], 'projects' => [], 'writeups' => [], 'knowledge' => [], 'labs' => []];
         }
 
         $limit = max(1, min(50, $limit));
@@ -94,6 +95,17 @@ final class SearchService
             [$like, $like, $like]
         );
 
+        $labs = Database::fetchAll(
+            "SELECT l.id, l.title, l.slug, l.short_description, l.difficulty, c.name AS category_name
+             FROM labs l
+             LEFT JOIN lab_categories c ON c.id = l.category_id
+             WHERE l.status = 'published' AND l.visibility = 'public'
+               AND (l.title LIKE ? OR l.short_description LIKE ?)
+             ORDER BY l.published_at DESC
+             LIMIT {$limit}",
+            [$like, $like]
+        );
+
         return [
             'threads' => $threads,
             'users' => $users,
@@ -101,6 +113,7 @@ final class SearchService
             'projects' => $projects,
             'writeups' => $writeups,
             'knowledge' => $knowledge,
+            'labs' => $labs,
         ];
     }
 

@@ -5,6 +5,7 @@
  * @var bool $showProgress
  * @var list<array<string, mixed>> $learnArticles
  * @var list<array<string, mixed>> $learnWriteups
+ * @var list<array<string, mixed>> $practiceLabs
  */
 use App\Core\Auth;
 use App\Services\SkillEvidenceService;
@@ -151,6 +152,17 @@ $currentLevel = (int) ($progress['level'] ?? 0);
                 </li>
             <?php endforeach; ?>
         </ul>
+    </section>
+    <?php endif; ?>
+
+    <?php if (!empty($practiceLabs)): ?>
+    <section class="skill-section">
+        <h2>Practice Labs</h2>
+        <div class="lab-grid lab-grid-compact">
+            <?php foreach ($practiceLabs as $lab): ?>
+                <?php \App\Core\View::partial('labs/partials/lab-card', ['lab' => $lab]); ?>
+            <?php endforeach; ?>
+        </div>
     </section>
     <?php endif; ?>
 
