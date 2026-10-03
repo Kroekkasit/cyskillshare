@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: cyskillshare-app
+    ports:
+      - "8080:80"
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - cyskillshare
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.4
+    container_name: cyskillshare-db
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-cyskillshare}
+      MYSQL_USER: ${DB_USERNAME:-cyskillshare}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-cyskillshare}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    # Intentionally not published to the host — use Docker network only.
+    volumes:
+      - cyskillshare_db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 25s
+    networks:
+      - cyskillshare
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+networks:
+  cyskillshare:
+    driver: bridge
+
+volumes:
+  cyskillshare_db_data:

@@ -1,0 +1,22 @@
+# Front controller — route all non-file requests through index.php
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block access to hidden files
+    RewriteRule (^|/)\.(?!well-known) - [F,L]
+
+    # Serve existing files/directories directly
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Deny directory listing
+Options -Indexes
+
+# Basic security headers (Apache)
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

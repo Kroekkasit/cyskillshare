@@ -1,0 +1,8 @@
+# Deny direct web access if document root is misconfigured to project root.
+# Correct document root is /public
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>

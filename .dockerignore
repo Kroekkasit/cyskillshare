@@ -1,0 +1,12 @@
+# Keep image build context small; the app is bind-mounted at runtime.
+.git
+.gitignore
+.env
+*.md
+storage/logs/*
+storage/uploads/*
+!storage/logs/.gitkeep
+!storage/uploads/.gitkeep
+.mysql-data
+*.log
+.DS_Store

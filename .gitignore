@@ -1,0 +1,27 @@
+# Environment
+.env
+
+# Dependencies / vendor (reserved for future)
+/vendor/
+
+# Storage (keep directory structure, ignore contents)
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Local PHP / MySQL helpers
+php-local.ini
+.mysql-data/
+*.log
+
+# Docker
+docker-compose.override.yml
