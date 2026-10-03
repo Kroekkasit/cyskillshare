@@ -14,7 +14,13 @@ use App\Controllers\CommunityController;
 use App\Controllers\HomeController;
 use App\Controllers\ModerationController;
 use App\Controllers\NotificationController;
+use App\Controllers\PortfolioAdminController;
+use App\Controllers\PortfolioController;
+use App\Controllers\PortfolioSettingsController;
 use App\Controllers\ProfileController;
+use App\Controllers\ProjectController;
+use App\Controllers\ProjectMediaController;
+use App\Controllers\ProjectVerificationController;
 use App\Controllers\ReplyController;
 use App\Controllers\ReportController;
 use App\Controllers\SearchController;
@@ -134,3 +140,38 @@ $router->post('/arena/admin/files/{id}/delete', [ArenaAdminController::class, 'd
 $router->get('/arena/admin/events', [ArenaAdminController::class, 'events'], [AuthMiddleware::class]);
 $router->get('/arena/admin/events/new', [ArenaAdminController::class, 'createEventForm'], [AuthMiddleware::class]);
 $router->post('/arena/admin/events', [ArenaAdminController::class, 'createEvent'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// Portfolio — static paths before parameterized routes
+$router->get('/portfolio/{username}/resume', [PortfolioController::class, 'resume']);
+$router->get('/portfolio/{username}', [PortfolioController::class, 'show']);
+$router->get('/dashboard/portfolio', [PortfolioController::class, 'dashboard'], [AuthMiddleware::class]);
+
+$router->get('/settings/portfolio', [PortfolioSettingsController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/settings/portfolio', [PortfolioSettingsController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/settings/portfolio/education', [PortfolioSettingsController::class, 'addEducation'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/settings/portfolio/education/{id}/delete', [PortfolioSettingsController::class, 'deleteEducation'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/settings/portfolio/experience', [PortfolioSettingsController::class, 'addExperience'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/settings/portfolio/experience/{id}/delete', [PortfolioSettingsController::class, 'deleteExperience'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/settings/portfolio/certifications', [PortfolioSettingsController::class, 'addCertification'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/settings/portfolio/certifications/{id}/delete', [PortfolioSettingsController::class, 'deleteCertification'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+$router->get('/projects', [ProjectController::class, 'index']);
+$router->get('/projects/create', [ProjectController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/projects/create', [ProjectController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/projects/images/{id}', [ProjectMediaController::class, 'show']);
+$router->get('/projects/edit/{id}', [ProjectController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/projects/edit/{id}', [ProjectController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/projects/{id}/publish', [ProjectController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/projects/{id}/archive', [ProjectController::class, 'archive'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/projects/{id}/feature', [ProjectController::class, 'feature'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/projects/{id}/verification', [ProjectController::class, 'requestVerification'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/projects/{id}/reaction', [ProjectController::class, 'react'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/projects/{id}/images', [ProjectMediaController::class, 'upload'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/projects/images/{id}/delete', [ProjectMediaController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/projects/{username}/{slug}', [ProjectController::class, 'show']);
+
+$router->get('/admin/portfolio', [PortfolioAdminController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/admin/portfolio/{id}/feature', [PortfolioAdminController::class, 'featureOverride'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/admin/projects/verification', [ProjectVerificationController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/admin/projects/verification/{id}/accept', [ProjectVerificationController::class, 'accept'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/projects/verification/{id}/reject', [ProjectVerificationController::class, 'reject'], [AuthMiddleware::class, CsrfMiddleware::class]);

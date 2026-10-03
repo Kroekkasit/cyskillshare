@@ -17,7 +17,7 @@ final class SearchController extends Controller
     {
         $q = trim((string) $request->input('q', ''));
         $results = $q === ''
-            ? ['threads' => [], 'users' => [], 'tags' => []]
+            ? ['threads' => [], 'users' => [], 'tags' => [], 'projects' => []]
             : SearchService::search($q);
 
         $this->view('pages/search/index', [

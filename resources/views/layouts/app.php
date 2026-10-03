@@ -66,7 +66,19 @@ $isCommunity = is_array($channelsGrouped);
                href="<?= e(url('/skills')) ?>">
                 <span class="icon">◈</span> Skills
             </a>
+            <a class="<?= str_starts_with($path, '/portfolio') || str_starts_with($path, '/projects') || str_starts_with($path, '/dashboard/portfolio') || str_starts_with($path, '/settings/portfolio') || str_starts_with($path, '/admin/portfolio') ? 'is-active' : '' ?>"
+               href="<?= e(url('/projects')) ?>">
+                <span class="icon">◆</span> Portfolio
+            </a>
             <?php if ($user): ?>
+                <a class="<?= str_starts_with($path, '/portfolio/' . $user->username) ? 'is-active' : '' ?>"
+                   href="<?= e(url('/portfolio/' . $user->username)) ?>">
+                    <span class="icon">▣</span> My Showcase
+                </a>
+                <a class="<?= str_starts_with($path, '/dashboard/portfolio') ? 'is-active' : '' ?>"
+                   href="<?= e(url('/dashboard/portfolio')) ?>">
+                    <span class="icon">▤</span> Portfolio Dashboard
+                </a>
                 <a class="<?= str_starts_with($path, '/notifications') ? 'is-active' : '' ?>" href="<?= e(url('/notifications')) ?>">
                     <span class="icon">🔔</span> Notifications
                     <?php if ($unread > 0): ?><span class="badge"><?= (int) $unread ?></span><?php endif; ?>

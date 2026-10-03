@@ -12,14 +12,15 @@ final class SearchService
      * @return array{
      *   threads: list<array<string, mixed>>,
      *   users: list<array<string, mixed>>,
-     *   tags: list<array<string, mixed>>
+     *   tags: list<array<string, mixed>>,
+     *   projects: list<array<string, mixed>>
      * }
      */
     public static function search(string $query, int $limit = 20): array
     {
         $q = trim($query);
         if ($q === '' || mb_strlen($q) < 2) {
-            return ['threads' => [], 'users' => [], 'tags' => []];
+            return ['threads' => [], 'users' => [], 'tags' => [], 'projects' => []];
         }
 
         $limit = max(1, min(50, $limit));
@@ -58,10 +59,22 @@ final class SearchService
             [$like, $like]
         );
 
+        $projects = Database::fetchAll(
+            "SELECT p.id, p.title, p.slug, p.short_description, u.username
+             FROM projects p
+             INNER JOIN users u ON u.id = p.user_id AND u.status = 'active'
+             WHERE p.publish_status = 'published' AND p.visibility = 'public'
+               AND (p.title LIKE ? OR p.short_description LIKE ?)
+             ORDER BY p.updated_at DESC
+             LIMIT {$limit}",
+            [$like, $like]
+        );
+
         return [
             'threads' => $threads,
             'users' => $users,
             'tags' => $tags,
+            'projects' => $projects,
         ];
     }
 

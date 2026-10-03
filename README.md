@@ -8,6 +8,7 @@ This repository currently contains:
 - **Phase 2** — Community & Discussion system
 - **Phase 3** — Cyber Arena / CTF challenge system
 - **Phase 4** — Cybersecurity Skill Tree & Evidence system
+- **Phase 5** — Cybersecurity Portfolio & Project Showcase
 
 ## Requirements
 
@@ -39,6 +40,8 @@ Schema and seed data (including Arena challenges/events) load automatically on t
 5. `05-arena-fk.sql` — `threads.challenge_id` FK  
 6. `06-skills-schema.sql` — Skill Tree & evidence tables  
 7. `07-seed-skills.sql` — skills, requirements, challenge mappings  
+8. `08-portfolio-schema.sql` — portfolios & projects  
+9. `09-seed-portfolio.sql` — demo portfolios/projects  
 
 ### Reset database (re-seed)
 
@@ -109,6 +112,47 @@ Accounts with `moderator` or `admin` roles can:
 - Soft-delete content
 
 Actions are written to `activity_logs`.
+
+## Portfolio & Projects (Phase 5)
+
+Professional cybersecurity showcase connected to Skills, Arena, and Community evidence.
+
+> The portfolio answers “what can this student do?” with projects, skills, and verifiable evidence — not XP badges.
+
+Features:
+
+- Public / community / private portfolio visibility (server-enforced)
+- Portfolio settings (`/settings/portfolio`) — sections, links, privacy
+- Projects CRUD with draft/published, technologies, skill links, challenge links
+- Featured projects (configurable limit) + project discovery (`/projects`)
+- Secure project image upload (`storage/projects/`, authorized stream)
+- Project verification (instructor/mentor/admin; no self-verify)
+- Project → Skill Evidence (pending until verified)
+- Education / experience / certifications (user-provided label)
+- Dashboard completeness guidance (not a skill score)
+- Printable resume (`/portfolio/{username}/resume` → browser Print/PDF)
+- Lightweight reactions + analytics aggregates
+- Global search includes public projects
+
+### Key URLs
+
+| Path | Purpose |
+|------|---------|
+| `/portfolio/{username}` | Public portfolio |
+| `/portfolio/{username}/resume` | Printable resume |
+| `/dashboard/portfolio` | Owner dashboard |
+| `/settings/portfolio` | Settings & sections |
+| `/projects` | Project discovery |
+| `/projects/create` | New project |
+| `/projects/{username}/{slug}` | Project detail |
+| `/admin/portfolio` | Staff overview |
+| `/admin/projects/verification` | Verification queue |
+
+### Demo (after seed)
+
+- `student1` — public portfolio with featured projects  
+- `student2` — community-only  
+- `student3` — private  
 
 ## Skill Tree & Evidence (Phase 4)
 

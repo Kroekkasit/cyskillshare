@@ -16,6 +16,7 @@ final class Config
             'database' => $directory . '/database.php',
             'arena' => $directory . '/arena.php',
             'skills' => $directory . '/skills.php',
+            'portfolio' => $directory . '/portfolio.php',
         ];
 
         foreach ($files as $key => $file) {

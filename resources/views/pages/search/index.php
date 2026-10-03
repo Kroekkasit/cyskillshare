@@ -1,7 +1,7 @@
 <?php
 /**
  * @var string $q
- * @var array{threads: list<array<string, mixed>>, users: list<array<string, mixed>>, tags: list<array<string, mixed>>} $results
+ * @var array{threads: list<array<string, mixed>>, users: list<array<string, mixed>>, tags: list<array<string, mixed>>, projects: list<array<string, mixed>>} $results
  */
 ?>
 <section class="page-header">
@@ -21,7 +21,7 @@
 
 <?php if ($q === ''): ?>
     <p class="muted">Enter a keyword to search.</p>
-<?php elseif ($results['threads'] === [] && $results['users'] === [] && $results['tags'] === []): ?>
+<?php elseif ($results['threads'] === [] && $results['users'] === [] && $results['tags'] === [] && ($results['projects'] ?? []) === []): ?>
     <div class="empty-state card">
         <h2>No results found</h2>
         <p class="muted">Try a different keyword or tag.</p>
@@ -58,6 +58,20 @@
             </ul>
         <?php endif; ?>
     </div>
+
+    <?php if (($results['projects'] ?? []) !== []): ?>
+    <div class="card">
+        <h2>Projects</h2>
+        <ul class="result-list">
+            <?php foreach ($results['projects'] as $p): ?>
+                <li>
+                    <a href="<?= e(url('/projects/' . $p['username'] . '/' . $p['slug'])) ?>"><?= e((string) $p['title']) ?></a>
+                    <div class="muted small">@<?= e((string) $p['username']) ?></div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php endif; ?>
 
     <div class="card">
         <h2>Tags</h2>
