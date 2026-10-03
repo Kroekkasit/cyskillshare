@@ -13,14 +13,16 @@ final class SearchService
      *   threads: list<array<string, mixed>>,
      *   users: list<array<string, mixed>>,
      *   tags: list<array<string, mixed>>,
-     *   projects: list<array<string, mixed>>
+     *   projects: list<array<string, mixed>>,
+     *   writeups: list<array<string, mixed>>,
+     *   knowledge: list<array<string, mixed>>
      * }
      */
     public static function search(string $query, int $limit = 20): array
     {
         $q = trim($query);
         if ($q === '' || mb_strlen($q) < 2) {
-            return ['threads' => [], 'users' => [], 'tags' => [], 'projects' => []];
+            return ['threads' => [], 'users' => [], 'tags' => [], 'projects' => [], 'writeups' => [], 'knowledge' => []];
         }
 
         $limit = max(1, min(50, $limit));
@@ -70,11 +72,35 @@ final class SearchService
             [$like, $like]
         );
 
+        $writeups = Database::fetchAll(
+            "SELECT w.id, w.title, w.slug, w.short_description, u.username
+             FROM writeups w
+             INNER JOIN users u ON u.id = w.user_id AND u.status = 'active'
+             WHERE w.deleted_at IS NULL AND w.status = 'published' AND w.visibility = 'public'
+               AND (w.title LIKE ? OR w.short_description LIKE ? OR w.content LIKE ?)
+             ORDER BY w.published_at DESC
+             LIMIT {$limit}",
+            [$like, $like, $like]
+        );
+
+        $knowledge = Database::fetchAll(
+            "SELECT a.id, a.title, a.slug, a.summary, u.username
+             FROM knowledge_articles a
+             INNER JOIN users u ON u.id = a.author_id AND u.status = 'active'
+             WHERE a.status = 'published' AND a.visibility = 'public'
+               AND (a.title LIKE ? OR a.summary LIKE ? OR a.content LIKE ?)
+             ORDER BY a.published_at DESC
+             LIMIT {$limit}",
+            [$like, $like, $like]
+        );
+
         return [
             'threads' => $threads,
             'users' => $users,
             'tags' => $tags,
             'projects' => $projects,
+            'writeups' => $writeups,
+            'knowledge' => $knowledge,
         ];
     }
 

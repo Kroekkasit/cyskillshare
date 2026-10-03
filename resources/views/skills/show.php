@@ -3,6 +3,8 @@
  * @var array<string, mixed> $detail
  * @var string $nextLevelName
  * @var bool $showProgress
+ * @var list<array<string, mixed>> $learnArticles
+ * @var list<array<string, mixed>> $learnWriteups
  */
 use App\Core\Auth;
 use App\Services\SkillEvidenceService;
@@ -149,6 +151,35 @@ $currentLevel = (int) ($progress['level'] ?? 0);
                 </li>
             <?php endforeach; ?>
         </ul>
+    </section>
+    <?php endif; ?>
+
+    <?php if (!empty($learnArticles) || !empty($learnWriteups)): ?>
+    <section class="skill-section skill-learn-section">
+        <h2>Learn</h2>
+        <?php if (!empty($learnArticles)): ?>
+            <h3 class="skill-learn-subheading">Knowledge Articles</h3>
+            <ul class="skill-learn-list">
+                <?php foreach ($learnArticles as $art): ?>
+                    <li>
+                        <a href="<?= e(url('/knowledge/article/' . $art['slug'])) ?>"><?= e((string) $art['title']) ?></a>
+                        <span class="pill"><?= e((string) $art['difficulty']) ?></span>
+                        <?php if (!empty($art['is_official'])): ?><span class="pill verified">Official</span><?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+        <?php if (!empty($learnWriteups)): ?>
+            <h3 class="skill-learn-subheading">Community Writeups</h3>
+            <ul class="skill-learn-list">
+                <?php foreach ($learnWriteups as $wu): ?>
+                    <li>
+                        <a href="<?= e(url('/writeups/' . $wu['username'] . '/' . $wu['slug'])) ?>"><?= e((string) $wu['title']) ?></a>
+                        <span class="muted small"><?= (int) ($wu['reading_time'] ?? 0) ?> min · @<?= e((string) $wu['username']) ?></span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
     </section>
     <?php endif; ?>
 

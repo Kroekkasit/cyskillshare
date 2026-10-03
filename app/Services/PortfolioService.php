@@ -148,6 +148,7 @@ final class PortfolioService
             'sections' => $sections,
             'featured_skills' => self::featuredSkills($user->id, (bool) $portfolio['show_skill_evidence']),
             'featured_projects' => ProjectService::featuredForUser($user->id, $viewerId, (int) $portfolio['featured_project_limit']),
+            'featured_writeups' => self::featuredWriteups($user->id, $viewerId),
             'projects' => ProjectService::publishedForUser($user->id, $viewerId),
             'challenge_stats' => !empty($portfolio['show_challenge_stats'])
                 ? self::challengeStats($user->id)
@@ -160,6 +161,37 @@ final class PortfolioService
             'certifications' => self::certifications($user->id, $viewerId),
             'is_owner' => $viewerId === $user->id,
         ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function featuredWriteups(int $userId, ?int $viewerId): array
+    {
+        $rows = Database::fetchAll(
+            "SELECT w.id, w.title, w.slug, w.short_description, w.difficulty, w.reading_time,
+                    w.view_count, w.helpful_count, w.featured, w.visibility, w.published_at, u.username
+             FROM portfolio_featured_writeups pfw
+             INNER JOIN writeups w ON w.id = pfw.writeup_id
+             INNER JOIN users u ON u.id = w.user_id
+             WHERE pfw.user_id = ?
+               AND w.deleted_at IS NULL
+               AND w.status = 'published'
+             ORDER BY pfw.display_order ASC, w.published_at DESC
+             LIMIT 6",
+            [$userId]
+        );
+
+        return array_values(array_filter(
+            $rows,
+            static function (array $r) use ($userId, $viewerId): bool {
+                return PortfolioVisibilityService::canView(
+                    (string) ($r['visibility'] ?? 'public'),
+                    $userId,
+                    $viewerId
+                );
+            }
+        ));
     }
 
     /**

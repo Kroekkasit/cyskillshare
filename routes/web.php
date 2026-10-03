@@ -12,6 +12,8 @@ use App\Controllers\BookmarkController;
 use App\Controllers\ChallengeController;
 use App\Controllers\CommunityController;
 use App\Controllers\HomeController;
+use App\Controllers\KnowledgeController;
+use App\Controllers\KnowledgeReviewController;
 use App\Controllers\ModerationController;
 use App\Controllers\NotificationController;
 use App\Controllers\PortfolioAdminController;
@@ -30,6 +32,8 @@ use App\Controllers\SkillEvidenceController;
 use App\Controllers\SkillVerificationController;
 use App\Controllers\ThreadController;
 use App\Controllers\VoteController;
+use App\Controllers\WriteupAdminController;
+use App\Controllers\WriteupController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CsrfMiddleware;
 use App\Middleware\GuestMiddleware;
@@ -175,3 +179,35 @@ $router->post('/admin/portfolio/{id}/feature', [PortfolioAdminController::class,
 $router->get('/admin/projects/verification', [ProjectVerificationController::class, 'index'], [AuthMiddleware::class]);
 $router->post('/admin/projects/verification/{id}/accept', [ProjectVerificationController::class, 'accept'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/admin/projects/verification/{id}/reject', [ProjectVerificationController::class, 'reject'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// Writeups — static paths before parameterized routes
+$router->get('/writeups', [WriteupController::class, 'index']);
+$router->get('/writeups/create', [WriteupController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/writeups/create', [WriteupController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/writeups/id/{id}', [WriteupController::class, 'redirectById']);
+$router->get('/writeups/edit/{id}', [WriteupController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/writeups/edit/{id}', [WriteupController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/writeups/{id}/autosave', [WriteupController::class, 'autosave'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/writeups/{id}/publish', [WriteupController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/writeups/{id}/archive', [WriteupController::class, 'archive'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/writeups/{id}/reaction', [WriteupController::class, 'react'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/writeups/{username}/{slug}', [WriteupController::class, 'show']);
+
+// Knowledge Base — static paths before parameterized routes
+$router->get('/knowledge', [KnowledgeController::class, 'index']);
+$router->get('/knowledge/create', [KnowledgeController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/knowledge/create', [KnowledgeController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/knowledge/category/{slug}', [KnowledgeController::class, 'category']);
+$router->get('/knowledge/article/{slug}', [KnowledgeController::class, 'show']);
+$router->get('/knowledge/edit/{id}', [KnowledgeController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/knowledge/edit/{id}', [KnowledgeController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/knowledge/{id}/submit-review', [KnowledgeController::class, 'submitReview'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/knowledge/{id}/reaction', [KnowledgeController::class, 'react'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/knowledge/{id}/history', [KnowledgeController::class, 'history'], [AuthMiddleware::class]);
+$router->get('/knowledge/{id}/version/{version}', [KnowledgeController::class, 'versionShow'], [AuthMiddleware::class]);
+
+// Writeup & knowledge admin
+$router->get('/admin/writeups', [WriteupAdminController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/admin/writeups/{id}/feature', [WriteupAdminController::class, 'feature'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/admin/knowledge/review', [KnowledgeReviewController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/admin/knowledge/{id}/review', [KnowledgeReviewController::class, 'review'], [AuthMiddleware::class, CsrfMiddleware::class]);

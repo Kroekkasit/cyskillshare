@@ -9,6 +9,7 @@ This repository currently contains:
 - **Phase 3** — Cyber Arena / CTF challenge system
 - **Phase 4** — Cybersecurity Skill Tree & Evidence system
 - **Phase 5** — Cybersecurity Portfolio & Project Showcase
+- **Phase 6** — Technical Writeups & Cybersecurity Knowledge Base
 
 ## Requirements
 
@@ -42,6 +43,8 @@ Schema and seed data (including Arena challenges/events) load automatically on t
 7. `07-seed-skills.sql` — skills, requirements, challenge mappings  
 8. `08-portfolio-schema.sql` — portfolios & projects  
 9. `09-seed-portfolio.sql` — demo portfolios/projects  
+10. `10-knowledge-schema.sql` — writeup relations & knowledge articles  
+11. `11-seed-knowledge.sql` — demo writeups & knowledge articles  
 
 ### Reset database (re-seed)
 
@@ -50,11 +53,13 @@ docker compose down -v
 docker compose up -d --build
 ```
 
-To apply Arena migration on an **existing** volume without wiping:
+To apply Arena / Knowledge schemas on an **existing** volume without wiping:
 
 ```bash
 docker exec -i cyskillshare-db mysql -uroot -prootsecret cyskillshare < database/migrations/003_phase3_arena.sql
 docker exec -i cyskillshare-db mysql -uroot -prootsecret cyskillshare < database/seed_arena.sql
+docker exec -i cyskillshare-db mysql -uroot -prootsecret cyskillshare < database/knowledge_schema.sql
+docker exec -i cyskillshare-db mysql -uroot -prootsecret cyskillshare < database/seed_knowledge.sql
 ```
 
 ### Services
@@ -112,6 +117,65 @@ Accounts with `moderator` or `admin` roles can:
 - Soft-delete content
 
 Actions are written to `activity_logs`.
+
+## Writeups & Knowledge Base (Phase 6)
+
+Technical writeups and structured knowledge articles — separate content types that connect Community → Arena → Skills → Portfolio.
+
+> Writeups capture personal practical experience. Knowledge articles are reusable, reviewed educational material. Neither executes user code; Markdown is sanitized to safe HTML.
+
+Features:
+
+- Database-driven writeup categories, tags, difficulty, visibility (`public` / `community` / `private`)
+- Markdown editor with templates, preview, and rate-limited autosave
+- Safe rendering (escaped HTML, inert code blocks, TOC from H2/H3, reading time)
+- Links to skills, Arena challenges, projects, community threads
+- Published writeups → Skill Evidence (`source_type = writeup`) via existing `SkillEvidenceService`
+- Knowledge articles with version history and instructor/mentor review workflow
+- Helpful / clear / practical reactions (`content_reactions`)
+- Discovery: search, filters, featured content; Learn section on skill pages
+- Portfolio featured writeups; home + global search integration
+- Admin feature toggle (`/admin/writeups`) and knowledge review queue (`/admin/knowledge/review`)
+
+### Key URLs
+
+| Path | Purpose |
+|------|---------|
+| `/writeups` | Writeup discovery |
+| `/writeups/create` | New writeup (auth) |
+| `/writeups/{username}/{slug}` | Writeup reading page |
+| `/writeups/edit/{id}` | Edit / preview / publish |
+| `/knowledge` | Knowledge Base home |
+| `/knowledge/category/{slug}` | Category listing |
+| `/knowledge/article/{slug}` | Article reading page |
+| `/knowledge/create` | New knowledge article |
+| `/knowledge/{id}/history` | Version history |
+| `/admin/writeups` | Feature / moderate writeups |
+| `/admin/knowledge/review` | Review queue |
+
+### Editorial workflow (knowledge)
+
+```text
+Draft → Submit for Review → Under Review → Approved → Published
+                              ↓
+                     Changes requested → Edit → Resubmit
+```
+
+Only instructor / mentor / admin can approve. Status badges such as “Instructor Verified” come from RBAC/`is_official`, not free-text labels.
+
+### Demo content (after seed)
+
+Writeups (published): SQL Injection Beyond the Basics, Memory Analysis with Volatility, Analyzing a Suspicious PE File, Understanding ARP Spoofing.
+
+Knowledge articles: What is SQL Injection?, Understanding CSRF Tokens, Linux File Permissions, TCP Three-Way Handshake, Introduction to Digital Forensics, Understanding PE Files, What is XSS?, Introduction to Network Reconnaissance.
+
+### Security notes
+
+- Never mass-assign `view_count`, `helpful_count`, `published_at`, or `user_id` from POST
+- Preview uses the same sanitization pipeline as published pages
+- Challenge flags / private lab data must not appear in writeups via challenge joins
+- Uploads limited to safe images (JPEG/PNG/WebP); no malware sample hosting
+- AI assist architecture reserved — not implemented yet
 
 ## Portfolio & Projects (Phase 5)
 
@@ -220,7 +284,7 @@ Features:
 - Challenge file downloads (staff upload; storage under `storage/challenges/`, not public)
 - Challenge ↔ Community discussion (`threads.challenge_id`, spoiler warning)
 - Instructor/admin challenge & event management
-- Writeups stub table (full writeup editor deferred)
+- Challenge writeups linked via Phase 6 `writeup_challenges`
 
 ### Key URLs
 

@@ -66,6 +66,14 @@ $isCommunity = is_array($channelsGrouped);
                href="<?= e(url('/skills')) ?>">
                 <span class="icon">◈</span> Skills
             </a>
+            <a class="<?= str_starts_with($path, '/writeups') || str_starts_with($path, '/admin/writeups') ? 'is-active' : '' ?>"
+               href="<?= e(url('/writeups')) ?>">
+                <span class="icon">✎</span> Writeups
+            </a>
+            <a class="<?= str_starts_with($path, '/knowledge') || str_starts_with($path, '/admin/knowledge') ? 'is-active' : '' ?>"
+               href="<?= e(url('/knowledge')) ?>">
+                <span class="icon">📚</span> Knowledge
+            </a>
             <a class="<?= str_starts_with($path, '/portfolio') || str_starts_with($path, '/projects') || str_starts_with($path, '/dashboard/portfolio') || str_starts_with($path, '/settings/portfolio') || str_starts_with($path, '/admin/portfolio') ? 'is-active' : '' ?>"
                href="<?= e(url('/projects')) ?>">
                 <span class="icon">◆</span> Portfolio

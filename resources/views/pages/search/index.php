@@ -1,13 +1,13 @@
 <?php
 /**
  * @var string $q
- * @var array{threads: list<array<string, mixed>>, users: list<array<string, mixed>>, tags: list<array<string, mixed>>, projects: list<array<string, mixed>>} $results
+ * @var array{threads: list<array<string, mixed>>, users: list<array<string, mixed>>, tags: list<array<string, mixed>>, projects: list<array<string, mixed>>, writeups: list<array<string, mixed>>, knowledge: list<array<string, mixed>>} $results
  */
 ?>
 <section class="page-header">
     <div>
         <h1>Search</h1>
-        <p class="muted">Find discussions, people, and tags.</p>
+        <p class="muted">Find discussions, writeups, knowledge, projects, people, and tags.</p>
     </div>
 </section>
 
@@ -21,7 +21,7 @@
 
 <?php if ($q === ''): ?>
     <p class="muted">Enter a keyword to search.</p>
-<?php elseif ($results['threads'] === [] && $results['users'] === [] && $results['tags'] === [] && ($results['projects'] ?? []) === []): ?>
+<?php elseif ($results['threads'] === [] && $results['users'] === [] && $results['tags'] === [] && ($results['projects'] ?? []) === [] && ($results['writeups'] ?? []) === [] && ($results['knowledge'] ?? []) === []): ?>
     <div class="empty-state card">
         <h2>No results found</h2>
         <p class="muted">Try a different keyword or tag.</p>
@@ -67,6 +67,34 @@
                 <li>
                     <a href="<?= e(url('/projects/' . $p['username'] . '/' . $p['slug'])) ?>"><?= e((string) $p['title']) ?></a>
                     <div class="muted small">@<?= e((string) $p['username']) ?></div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php endif; ?>
+
+    <?php if (($results['writeups'] ?? []) !== []): ?>
+    <div class="card">
+        <h2>Writeups</h2>
+        <ul class="result-list">
+            <?php foreach ($results['writeups'] as $w): ?>
+                <li>
+                    <a href="<?= e(url('/writeups/' . $w['username'] . '/' . $w['slug'])) ?>"><?= e((string) $w['title']) ?></a>
+                    <div class="muted small">@<?= e((string) $w['username']) ?></div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php endif; ?>
+
+    <?php if (($results['knowledge'] ?? []) !== []): ?>
+    <div class="card">
+        <h2>Knowledge Articles</h2>
+        <ul class="result-list">
+            <?php foreach ($results['knowledge'] as $a): ?>
+                <li>
+                    <a href="<?= e(url('/knowledge/article/' . $a['slug'])) ?>"><?= e((string) $a['title']) ?></a>
+                    <div class="muted small">@<?= e((string) $a['username']) ?></div>
                 </li>
             <?php endforeach; ?>
         </ul>

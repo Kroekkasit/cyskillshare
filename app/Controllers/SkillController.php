@@ -72,6 +72,8 @@ final class SkillController extends Controller
             'detail' => $detail,
             'nextLevelName' => $nextLevelName,
             'showProgress' => Auth::check() && $currentLevel < 5,
+            'learnArticles' => $detail['learn_articles'] ?? [],
+            'learnWriteups' => $detail['learn_writeups'] ?? [],
         ]);
     }
 

@@ -5,6 +5,7 @@
  * @var string $phpVersion
  * @var array{discussions:int,solved_week:int,members:int} $stats
  * @var list<array<string, mixed>> $recentDiscussions
+ * @var list<array<string, mixed>> $latestWriteups
  */
 $hour = (int) date('G');
 $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
@@ -45,6 +46,18 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good
         </ul>
     <?php endif; ?>
 </div>
+
+<?php if ($latestWriteups !== []): ?>
+<div class="card">
+    <h2>Latest Writeups</h2>
+    <div class="writeup-grid writeup-grid-compact">
+        <?php foreach ($latestWriteups as $wu): ?>
+            <?php \App\Core\View::partial('partials/writeup-card', ['writeup' => $wu]); ?>
+        <?php endforeach; ?>
+    </div>
+    <a class="btn" href="<?= e(url('/writeups')) ?>">Browse all writeups</a>
+</div>
+<?php endif; ?>
 
 <details class="card">
     <summary><strong>System Status</strong> <span class="muted">(foundation checks)</span></summary>

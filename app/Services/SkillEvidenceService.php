@@ -361,8 +361,10 @@ final class SkillEvidenceService
         return match ($sourceType) {
             'challenge' => '/arena/challenges/' . $sourceId,
             'thread' => '/thread/' . $sourceId,
-            'reply' => null, // resolved via thread in UI when needed
-            'writeup', 'project', 'lab' => null, // future systems
+            'reply' => null,
+            'writeup' => '/writeups/id/' . $sourceId,
+            'project' => null, // resolved via project detail when username known
+            'lab' => null,
             default => null,
         };
     }

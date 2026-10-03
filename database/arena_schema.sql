@@ -244,27 +244,55 @@ CREATE TABLE `arena_point_transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
--- writeups (stub)
+-- writeups (full schema — Phase 6; challenge_id optional via writeup_challenges)
 -- ---------------------------------------------------------------------------
+CREATE TABLE `writeup_categories` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `slug` VARCHAR(120) NOT NULL,
+  `description` TEXT NULL,
+  `display_order` INT NOT NULL DEFAULT 0,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `writeup_categories_slug_unique` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `writeups` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `challenge_id` BIGINT UNSIGNED NOT NULL,
   `user_id` BIGINT UNSIGNED NOT NULL,
+  `category_id` INT UNSIGNED NULL,
   `title` VARCHAR(200) NOT NULL,
+  `slug` VARCHAR(220) NOT NULL,
+  `short_description` VARCHAR(500) NULL,
   `content` MEDIUMTEXT NOT NULL,
-  `status` ENUM('draft', 'published', 'hidden') NOT NULL DEFAULT 'draft',
+  `content_format` ENUM('markdown') NOT NULL DEFAULT 'markdown',
+  `difficulty` ENUM('beginner','intermediate','advanced','expert') NOT NULL DEFAULT 'beginner',
+  `status` ENUM('draft','published','archived','under_review') NOT NULL DEFAULT 'draft',
+  `visibility` ENUM('public','community','private') NOT NULL DEFAULT 'public',
+  `cover_image` VARCHAR(255) NULL,
+  `reading_time` INT UNSIGNED NOT NULL DEFAULT 1,
+  `view_count` INT UNSIGNED NOT NULL DEFAULT 0,
+  `helpful_count` INT UNSIGNED NOT NULL DEFAULT 0,
+  `featured` TINYINT(1) NOT NULL DEFAULT 0,
+  `published_at` TIMESTAMP NULL DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `writeups_challenge_id_index` (`challenge_id`),
+  UNIQUE KEY `writeups_user_slug_unique` (`user_id`, `slug`),
   KEY `writeups_user_id_index` (`user_id`),
+  KEY `writeups_category_id_index` (`category_id`),
   KEY `writeups_status_index` (`status`),
+  KEY `writeups_visibility_index` (`visibility`),
+  KEY `writeups_featured_index` (`featured`),
+  KEY `writeups_published_at_index` (`published_at`),
   KEY `writeups_deleted_at_index` (`deleted_at`),
-  CONSTRAINT `writeups_challenge_id_fk`
-    FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`id`) ON DELETE CASCADE,
+  FULLTEXT KEY `writeups_ft_search` (`title`, `short_description`, `content`),
   CONSTRAINT `writeups_user_id_fk`
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `writeups_category_id_fk`
+    FOREIGN KEY (`category_id`) REFERENCES `writeup_categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

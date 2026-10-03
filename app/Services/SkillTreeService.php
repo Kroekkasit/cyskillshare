@@ -183,6 +183,7 @@ final class SkillTreeService
         }
 
         $nextSteps = self::suggestedNextSteps($skill->id, $viewerId, (int) $progress['level']);
+        $learning = KnowledgeArticleService::forSkill($skill->slug, $viewerId);
 
         return [
             'skill' => $skill,
@@ -195,6 +196,8 @@ final class SkillTreeService
             'next_steps' => $nextSteps,
             'levels' => SkillLevel::mapByLevel(),
             'children' => Skill::childrenOf($skill->id),
+            'learn_articles' => $learning['articles'],
+            'learn_writeups' => $learning['writeups'],
         ];
     }
 

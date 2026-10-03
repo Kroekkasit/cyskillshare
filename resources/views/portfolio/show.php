@@ -11,6 +11,7 @@
  * @var list<array<string, mixed>> $education
  * @var list<array<string, mixed>> $experience
  * @var list<array<string, mixed>> $certifications
+ * @var list<array<string, mixed>> $featured_writeups
  * @var bool $is_owner
  */
 ?>
@@ -105,6 +106,17 @@
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
+</section>
+<?php endif; ?>
+
+<?php if (!empty($sections['writeups']) && ($featured_writeups ?? []) !== []): ?>
+<section class="card portfolio-section">
+    <h2>Featured Writeups</h2>
+    <div class="writeup-grid">
+        <?php foreach ($featured_writeups as $wu): ?>
+            <?php \App\Core\View::partial('partials/writeup-card', ['writeup' => $wu]); ?>
+        <?php endforeach; ?>
+    </div>
 </section>
 <?php endif; ?>
 
