@@ -19,6 +19,7 @@ use App\Services\ChallengeFileService;
 use App\Services\ChallengeService;
 use App\Services\ChallengeSubmissionService;
 use App\Services\HintService;
+use App\Services\SkillService;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -95,6 +96,7 @@ final class ChallengeController extends Controller
             'solve' => $userId !== null ? ChallengeSolve::findForUser($challenge->id, $userId) : null,
             'threadId' => ChallengeDiscussionService::threadIdForChallenge($challenge->id),
             'tags' => $challenge->tags(),
+            'practicedSkills' => SkillService::skillsForChallenge($challenge->id),
         ]);
     }
 

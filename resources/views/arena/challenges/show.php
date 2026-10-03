@@ -10,6 +10,7 @@
  * @var \App\Models\ChallengeSolve|null $solve
  * @var int|null $threadId
  * @var list<array{id:int,name:string,slug:string}> $tags
+ * @var list<array{id:int,name:string,slug:string}> $practicedSkills
  */
 use App\Core\Auth;
 ?>
@@ -54,6 +55,17 @@ use App\Core\Auth;
             <?php foreach ($tags as $tag): ?>
                 <?php \App\Core\View::partial('components/tag', ['tag' => $tag]); ?>
             <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($practicedSkills !== []): ?>
+        <div class="skill-chips-row">
+            <span class="muted">Skills practiced:</span>
+            <div class="tag-row">
+                <?php foreach ($practicedSkills as $sk): ?>
+                    <a class="pill skill-chip" href="<?= e(url('/skills/' . $sk['slug'])) ?>"><?= e($sk['name']) ?></a>
+                <?php endforeach; ?>
+            </div>
         </div>
     <?php endif; ?>
 

@@ -148,6 +148,13 @@ final class ChallengeSubmissionService
             $challengeId
         );
 
+        // Skill Tree evidence (Prompt 4) — never fails the solve if mapping is empty/errors
+        try {
+            SkillEvidenceService::recordChallengeEvidence($userId, $challengeId);
+        } catch (\Throwable $e) {
+            \App\Core\ErrorHandler::log('Skill evidence after solve failed: ' . $e->getMessage());
+        }
+
         return [
             'correct' => true,
             'points' => $awarded,

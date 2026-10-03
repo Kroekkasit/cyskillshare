@@ -19,6 +19,7 @@ final class User extends Model
     public ?string $bio;
     public ?string $avatar;
     public string $status;
+    public string $skills_visibility;
     public string $created_at;
     public string $updated_at;
     public ?string $last_login_at;
@@ -39,6 +40,7 @@ final class User extends Model
         $this->bio = $row['bio'] !== null ? (string) $row['bio'] : null;
         $this->avatar = $row['avatar'] !== null ? (string) $row['avatar'] : null;
         $this->status = (string) $row['status'];
+        $this->skills_visibility = (string) ($row['skills_visibility'] ?? 'public');
         $this->created_at = (string) $row['created_at'];
         $this->updated_at = (string) $row['updated_at'];
         $this->last_login_at = $row['last_login_at'] !== null ? (string) $row['last_login_at'] : null;
@@ -183,6 +185,15 @@ final class User extends Model
         );
         $this->bio = $bio;
         $this->full_name = $fullName;
+    }
+
+    public function updateSkillsVisibility(string $visibility): void
+    {
+        self::execute(
+            'UPDATE users SET skills_visibility = ? WHERE id = ?',
+            [$visibility, $this->id]
+        );
+        $this->skills_visibility = $visibility;
     }
 
     public static function countActive(): int

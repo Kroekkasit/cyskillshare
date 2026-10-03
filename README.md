@@ -7,6 +7,7 @@ This repository currently contains:
 - **Phase 1** — secure PHP foundation (auth, PDO, CSRF, RBAC, routing)
 - **Phase 2** — Community & Discussion system
 - **Phase 3** — Cyber Arena / CTF challenge system
+- **Phase 4** — Cybersecurity Skill Tree & Evidence system
 
 ## Requirements
 
@@ -36,6 +37,8 @@ Schema and seed data (including Arena challenges/events) load automatically on t
 3. `03-arena-schema.sql` — Arena tables  
 4. `04-seed-arena.sql` — challenges, hints, events  
 5. `05-arena-fk.sql` — `threads.challenge_id` FK  
+6. `06-skills-schema.sql` — Skill Tree & evidence tables  
+7. `07-seed-skills.sql` — skills, requirements, challenge mappings  
 
 ### Reset database (re-seed)
 
@@ -106,6 +109,54 @@ Accounts with `moderator` or `admin` roles can:
 - Soft-delete content
 
 Actions are written to `activity_logs`.
+
+## Skill Tree & Evidence (Phase 4)
+
+Evidence-driven cybersecurity skills — **not** a global XP / game score system.
+
+> Skill level is derived from accepted evidence (Arena solves, best answers, verified work), requirements, difficulty breadth, and optional instructor verification.
+
+Features:
+
+- Hierarchical skill tree (DB-managed categories / skills / parents)
+- Configurable levels (Not Started → Demonstrated)
+- Per-skill requirements stored in `skill_requirements`
+- Prerequisites with circular-dependency protection
+- `skill_evidence` with unique `(user, source_type, source_id, skill)` 
+- Arena solve → automatic evidence via `SkillEvidenceService`
+- Community best answer → evidence via `thread_skills` mappings
+- Hooks for future writeups / projects / labs (`source_type` + `source_id`)
+- Explainable progress (“Why this level?” checklists)
+- Profile skill summary + privacy (`public` / `community` / `private`)
+- Instructor/mentor verification queue
+- Admin skill management + recalculate (includes solve backfill)
+
+### Key URLs
+
+| Path | Purpose |
+|------|---------|
+| `/skills` | Skill Tree |
+| `/skills/{slug}` | Skill detail + evidence/requirements |
+| `/skills/evidence` | My evidence |
+| `/skills/verification` | Pending review (instructor/mentor/admin) |
+| `/admin/skills` | Manage tree / requirements |
+| `/admin/skills/recalculate` | Admin-only progress rebuild |
+
+### How progress is calculated
+
+1. Accepted evidence is collected for the skill  
+2. Requirements for level 1…5 are checked in order (counts + difficulty)  
+3. Highest fully satisfied level becomes `user_skills.current_level`  
+4. Progress bar = fraction of **next** level’s requirements met  
+5. Rejecting/removing evidence can lower the level on recalculation  
+
+### How to add a skill
+
+1. Login as instructor/admin → `/admin/skills/create`  
+2. Set category, optional parent, description  
+3. Configure requirements at `/admin/skills/{id}/requirements`  
+4. Map Arena challenges via `challenge_skills` (seed or future admin UI)  
+5. Run recalculate if requirements changed for existing users  
 
 ## Cyber Arena (Phase 3)
 

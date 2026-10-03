@@ -7,7 +7,11 @@
  * @var int $replyCount
  * @var int $bestAnswerCount
  * @var list<array<string, mixed>> $recentDiscussions
+ * @var bool $canViewSkills
+ * @var list<array<string, mixed>> $topSkills
+ * @var string $skillsVisibility
  */
+use App\Services\SkillTreeService;
 ?>
 <section class="profile-hero card">
     <div class="avatar lg"><?= e(strtoupper(substr($profile->username, 0, 1))) ?></div>
@@ -32,6 +36,55 @@
     <div class="stat-card"><strong><?= (int) $replyCount ?></strong><span>Replies</span></div>
     <div class="stat-card"><strong><?= (int) $bestAnswerCount ?></strong><span>Best Answers</span></div>
 </div>
+
+<?php if ($canViewSkills && $topSkills !== []): ?>
+<div class="card skill-profile-section">
+    <div class="skill-profile-head">
+        <h2>Top Skills</h2>
+        <a class="btn btn-sm" href="<?= e(url('/skills')) ?>">View skill tree</a>
+    </div>
+    <ul class="skill-profile-list">
+        <?php foreach ($topSkills as $us): ?>
+            <li class="skill-profile-item">
+                <a href="<?= e(url('/skills/' . $us['slug'])) ?>">
+                    <span class="skill-level-symbol"><?= e(SkillTreeService::levelSymbol((int) $us['current_level'])) ?></span>
+                    <?= e($us['name']) ?>
+                </a>
+                <span class="muted"><?= e($us['level_name'] ?? 'Not started') ?></span>
+                <?php \App\Core\View::partial('skills/partials/progress-bar', [
+                    'progress' => (int) $us['progress_score'],
+                    'label' => '',
+                    'class' => 'skill-progress skill-progress-compact',
+                ]); ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>
+<?php elseif (!$canViewSkills && !$isOwner): ?>
+<div class="card">
+    <p class="muted">Skills are private on this profile.</p>
+</div>
+<?php endif; ?>
+
+<?php if ($isOwner): ?>
+<div class="card">
+    <h2>Skills visibility</h2>
+    <p class="muted">Control who can see your skill progress on this profile.</p>
+    <form method="post" action="<?= e(url('/skills/privacy')) ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="redirect" value="<?= e(url('/profile/' . $profile->username)) ?>">
+        <div class="form-group">
+            <label for="visibility">Who can see your skills</label>
+            <select id="visibility" name="visibility">
+                <?php foreach (['public' => 'Everyone', 'community' => 'Logged-in members', 'private' => 'Only me'] as $val => $label): ?>
+                    <option value="<?= e($val) ?>" <?= $skillsVisibility === $val ? 'selected' : '' ?>><?= e($label) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Save visibility</button>
+    </form>
+</div>
+<?php endif; ?>
 
 <div class="card">
     <h2>Bio</h2>

@@ -11,6 +11,7 @@
  * @var array<int, array<string, mixed>|null> $replyVotes
  * @var bool $canModerate
  * @var bool $canManageThread
+ * @var list<array{id:int,name:string,slug:string}> $discussedSkills
  */
 use App\Core\Auth;
 ?>
@@ -55,6 +56,16 @@ use App\Core\Auth;
             <?php if ($thread->is_locked): ?><span class="pill lock">🔒 Locked</span><?php endif; ?>
         </div>
     </header>
+
+    <?php if ($discussedSkills !== []): ?>
+        <div class="skill-discussed-row muted">
+            <span>Skills discussed:</span>
+            <?php foreach ($discussedSkills as $i => $sk): ?>
+                <?php if ($i > 0): ?>, <?php endif; ?>
+                <a href="<?= e(url('/skills/' . $sk['slug'])) ?>"><?= e($sk['name']) ?></a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="content-body"><?= markdown($thread->content) ?></div>
 

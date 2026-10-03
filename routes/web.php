@@ -18,6 +18,10 @@ use App\Controllers\ProfileController;
 use App\Controllers\ReplyController;
 use App\Controllers\ReportController;
 use App\Controllers\SearchController;
+use App\Controllers\SkillAdminController;
+use App\Controllers\SkillController;
+use App\Controllers\SkillEvidenceController;
+use App\Controllers\SkillVerificationController;
 use App\Controllers\ThreadController;
 use App\Controllers\VoteController;
 use App\Middleware\AuthMiddleware;
@@ -70,6 +74,29 @@ $router->post('/report', [ReportController::class, 'store'], [AuthMiddleware::cl
 $router->get('/moderation/reports', [ModerationController::class, 'reports'], [AuthMiddleware::class]);
 $router->post('/moderation/reports/{id}/resolve', [ModerationController::class, 'resolve'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/moderation/reports/{id}/dismiss', [ModerationController::class, 'dismiss'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// Skill Tree — static paths before {slug}
+$router->get('/skills', [SkillController::class, 'index']);
+$router->get('/skills/evidence', [SkillEvidenceController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/skills/verification', [SkillVerificationController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/skills/verification/{id}/accept', [SkillVerificationController::class, 'accept'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/skills/verification/{id}/reject', [SkillVerificationController::class, 'reject'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/skills/privacy', [SkillController::class, 'privacy'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/skills/evidence/manual', [SkillEvidenceController::class, 'submitManual'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/skills/{slug}', [SkillController::class, 'show']);
+
+// Skill admin
+$router->get('/admin/skills', [SkillAdminController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/admin/skills/create', [SkillAdminController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/admin/skills/create', [SkillAdminController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/admin/skills/recalculate', [SkillAdminController::class, 'recalculateForm'], [AuthMiddleware::class]);
+$router->post('/admin/skills/recalculate', [SkillAdminController::class, 'recalculate'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/admin/skills/{id}/edit', [SkillAdminController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/admin/skills/{id}/edit', [SkillAdminController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/admin/skills/{id}/requirements', [SkillAdminController::class, 'requirementsForm'], [AuthMiddleware::class]);
+$router->post('/admin/skills/{id}/requirements', [SkillAdminController::class, 'addRequirement'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/skills/{id}/prerequisites', [SkillAdminController::class, 'addPrerequisite'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/skills/requirements/{id}/delete', [SkillAdminController::class, 'deleteRequirement'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 $router->get('/profile/{username}', [ProfileController::class, 'show']);
 $router->post('/profile/{username}', [ProfileController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);

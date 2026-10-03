@@ -6,11 +6,13 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Database;
 use App\Core\Request;
 use App\Core\Validator;
 use App\Models\Channel;
 use App\Models\Thread;
 use App\Models\User;
+use App\Services\SkillTreeService;
 
 final class ProfileController extends Controller
 {
@@ -33,17 +35,38 @@ final class ProfileController extends Controller
             'sort' => 'latest',
         ], 1, 10);
 
+        $viewerId = Auth::id();
+        $canViewSkills = SkillTreeService::canViewSkills($profile->id, $viewerId);
+        $topSkills = [];
+
+        if ($canViewSkills) {
+            $topSkills = Database::fetchAll(
+                'SELECT us.current_level, us.progress_score, us.evidence_count,
+                        s.id, s.name, s.slug, sl.name AS level_name
+                 FROM user_skills us
+                 INNER JOIN skills s ON s.id = us.skill_id AND s.is_active = 1
+                 LEFT JOIN skill_levels sl ON sl.level = us.current_level
+                 WHERE us.user_id = ? AND us.evidence_count > 0
+                 ORDER BY us.current_level DESC, us.progress_score DESC
+                 LIMIT 6',
+                [$profile->id]
+            );
+        }
+
         $this->view('pages/profile/show', [
             'title' => '@' . $profile->username . ' — CySkillShare',
             'profile' => $profile,
             'roles' => $profile->roleNames(),
-            'isOwner' => Auth::id() === $profile->id,
+            'isOwner' => $viewerId === $profile->id,
             'discussionCount' => $profile->discussionCount(),
             'replyCount' => $profile->replyCount(),
             'bestAnswerCount' => $profile->bestAnswerCount(),
             'recentDiscussions' => $discussions['items'],
             'channelsGrouped' => Channel::groupedForSidebar(),
             'activeChannel' => null,
+            'canViewSkills' => $canViewSkills,
+            'topSkills' => $topSkills,
+            'skillsVisibility' => $profile->skills_visibility,
         ]);
     }
 

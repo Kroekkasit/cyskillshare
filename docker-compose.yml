@@ -33,6 +33,8 @@ services:
       - ./database/arena_schema.sql:/docker-entrypoint-initdb.d/03-arena-schema.sql:ro
       - ./database/seed_arena.sql:/docker-entrypoint-initdb.d/04-seed-arena.sql:ro
       - ./database/migrations/003_phase3_arena_fk.sql:/docker-entrypoint-initdb.d/05-arena-fk.sql:ro
+      - ./database/skills_schema.sql:/docker-entrypoint-initdb.d/06-skills-schema.sql:ro
+      - ./database/seed_skills.sql:/docker-entrypoint-initdb.d/07-seed-skills.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s

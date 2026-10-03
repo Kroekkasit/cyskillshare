@@ -1523,3 +1523,384 @@ footer.site-footer {
     font-size: 0.78rem;
   }
 }
+
+/* ── Skill Tree ── */
+
+.skill-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.skill-nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  padding: 0.25rem 0;
+}
+
+.skill-nav a.is-active,
+.skill-nav a:hover {
+  color: var(--accent);
+}
+
+.skill-legend {
+  margin-bottom: 1rem;
+}
+
+.skill-legend-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.skill-legend-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skill-legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+}
+
+.skill-level-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text);
+}
+
+.skill-level-symbol.lg {
+  width: auto;
+  font-size: 1.35rem;
+  margin-right: 0.35rem;
+}
+
+.skill-filters .filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.skill-stats-summary {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.skill-tree {
+  display: grid;
+  gap: 1rem;
+}
+
+.skill-category {
+  padding: 0;
+  overflow: hidden;
+}
+
+.skill-category-head {
+  cursor: pointer;
+  padding: 1rem 1.25rem;
+  list-style: none;
+}
+
+.skill-category-head::-webkit-details-marker {
+  display: none;
+}
+
+.skill-category-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  display: inline;
+}
+
+.skill-category-head h2::before {
+  content: "▸ ";
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.skill-category[open] .skill-category-head h2::before {
+  content: "▾ ";
+}
+
+.skill-node-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 1.25rem 1rem;
+}
+
+.skill-node {
+  padding: 0.35rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+}
+
+.skill-node-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.skill-node-link:hover {
+  color: var(--accent);
+}
+
+.skill-node-children {
+  list-style: none;
+  margin: 0;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--border);
+}
+
+.skill-node-child .skill-node-link {
+  font-weight: 400;
+}
+
+.skill-node-level {
+  font-size: 0.82rem;
+}
+
+.skill-progress {
+  margin: 1rem 0;
+}
+
+.skill-progress-compact {
+  margin: 0.35rem 0 0;
+  flex: 1 1 100%;
+}
+
+.skill-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  margin-bottom: 0.35rem;
+}
+
+.skill-progress-track {
+  height: 0.5rem;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.skill-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.skill-detail-head h1 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.skill-gated-note {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0;
+}
+
+.skill-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.skill-section h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.75rem;
+}
+
+.skill-checklist,
+.skill-prereq-list,
+.skill-evidence-list,
+.skill-next-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skill-checklist li,
+.skill-prereq-list li,
+.skill-evidence-list li,
+.skill-next-steps li {
+  padding: 0.35rem 0;
+}
+
+.skill-checklist li.met {
+  color: var(--text);
+}
+
+.skill-checklist li.unmet {
+  color: var(--text-muted);
+}
+
+.skill-level-reqs {
+  margin-bottom: 1rem;
+}
+
+.skill-level-reqs h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+}
+
+.skill-evidence-table .pill.status-accepted {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.skill-evidence-table .pill.status-pending {
+  background: rgba(234, 179, 8, 0.15);
+}
+
+.skill-evidence-table .pill.status-rejected {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.skill-verification-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.skill-reject-form {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.skill-reject-form input[type="text"] {
+  min-width: 8rem;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.skill-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.skill-chip {
+  text-decoration: none;
+}
+
+.skill-discussed-row {
+  font-size: 0.88rem;
+  margin-bottom: 0.75rem;
+}
+
+.skill-discussed-row a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.skill-discussed-row a:hover {
+  color: var(--accent);
+}
+
+.skill-profile-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.skill-profile-head h2 {
+  margin: 0;
+}
+
+.skill-profile-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skill-profile-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.skill-profile-item:last-child {
+  border-bottom: none;
+}
+
+.skill-profile-item a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.skill-admin-category {
+  margin-bottom: 1rem;
+}
+
+.skill-admin-category h2 {
+  margin-top: 0;
+}
+
+.skill-prereq-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .skill-filters .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-stats-summary {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .skill-verification-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .skill-reject-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .skill-evidence-table th:nth-child(3),
+  .skill-evidence-table td:nth-child(3),
+  .skill-verification-table th:nth-child(4),
+  .skill-verification-table td:nth-child(4) {
+    display: none;
+  }
+}

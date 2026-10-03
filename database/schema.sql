@@ -39,6 +39,7 @@ CREATE TABLE `users` (
   `year_level` TINYINT UNSIGNED NULL,
   `program` VARCHAR(100) NULL,
   `bio` TEXT NULL,
+  `skills_visibility` ENUM('public', 'community', 'private') NOT NULL DEFAULT 'public',
   `avatar` VARCHAR(255) NULL,
   `status` ENUM('active', 'suspended', 'banned') NOT NULL DEFAULT 'active',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

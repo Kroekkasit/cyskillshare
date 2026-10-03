@@ -140,6 +140,17 @@ final class ReplyService
                 $thread->id
             );
         }
+
+        try {
+            SkillEvidenceService::recordBestAnswerEvidence(
+                $reply->user_id,
+                $thread->id,
+                $reply->id,
+                $thread->title
+            );
+        } catch (\Throwable $e) {
+            \App\Core\ErrorHandler::log('Skill evidence after best answer failed: ' . $e->getMessage());
+        }
     }
 
     public static function unmarkBestAnswer(Thread $thread, Reply $reply, int $actorId): void
@@ -163,5 +174,11 @@ final class ReplyService
         }
 
         ActivityLogService::log($actorId, 'best_answer_removed', 'reply', $reply->id);
+
+        try {
+            SkillEvidenceService::revokeBestAnswerEvidence($reply->id);
+        } catch (\Throwable $e) {
+            \App\Core\ErrorHandler::log('Skill evidence revoke after unmark failed: ' . $e->getMessage());
+        }
     }
 }

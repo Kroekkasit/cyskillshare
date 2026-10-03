@@ -15,6 +15,7 @@ use App\Models\Thread;
 use App\Models\User;
 use App\Models\Vote;
 use App\Services\ReplyService;
+use App\Services\SkillService;
 use App\Services\ThreadService;
 
 final class ThreadController extends Controller
@@ -77,6 +78,7 @@ final class ThreadController extends Controller
             'activeChannel' => $channel?->slug,
             'canModerate' => $isStaff,
             'canManageThread' => Auth::check() && Auth::canManage($thread->user_id),
+            'discussedSkills' => SkillService::skillsForThread($thread->id),
         ]);
     }
 
