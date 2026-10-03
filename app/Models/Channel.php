@@ -74,4 +74,26 @@ final class Channel extends Model
              ORDER BY c.sort_order ASC, ch.sort_order ASC'
         );
     }
+
+    /**
+     * @return array<string, list<array<string, mixed>>>
+     */
+    public static function groupedForSidebar(): array
+    {
+        $grouped = [];
+        foreach (self::withCategories() as $row) {
+            $cat = (string) $row['category_name'];
+            $grouped[$cat][] = $row;
+        }
+        return $grouped;
+    }
+
+    public function threadCount(): int
+    {
+        $row = self::fetch(
+            'SELECT COUNT(*) AS cnt FROM threads WHERE channel_id = ? AND deleted_at IS NULL',
+            [$this->id]
+        );
+        return (int) ($row['cnt'] ?? 0);
+    }
 }

@@ -3,26 +3,51 @@
  * @var array<string, bool> $checks
  * @var \App\Models\User|null $user
  * @var string $phpVersion
+ * @var array{discussions:int,solved_week:int,members:int} $stats
+ * @var list<array<string, mixed>> $recentDiscussions
  */
+$hour = (int) date('G');
+$greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
 ?>
 <section class="hero-banner">
-    <h1>CySkillShare</h1>
-    <p class="subtitle">Cybersecurity skill sharing for students who want to
+    <h1><?= e($greeting) ?><?= $user ? ', ' . e($user->username) : '' ?>.</h1>
+    <p class="subtitle">Cybersecurity Community for students who want to
         <span class="accent-italic">learn together</span>.</p>
     <p class="org">College of Computing · Khon Kaen University</p>
     <div class="hero-actions">
-        <a class="btn btn-primary" href="<?= e(url('/community')) ?>">Explore community</a>
-        <?php if (!$user): ?>
-            <a class="btn" href="<?= e(url('/register')) ?>">Create account</a>
-        <?php else: ?>
-            <a class="btn" href="<?= e(url('/u/' . $user->username)) ?>">View profile</a>
-        <?php endif; ?>
+        <a class="btn btn-primary" href="<?= e(url('/community')) ?>">Open Community</a>
+        <a class="btn" href="<?= e(url('/community/new')) ?>">+ New Discussion</a>
     </div>
 </section>
 
+<div class="stats-grid">
+    <div class="stat-card"><strong><?= (int) $stats['discussions'] ?></strong><span>Active Discussions</span></div>
+    <div class="stat-card"><strong><?= (int) $stats['solved_week'] ?></strong><span>Solved This Week</span></div>
+    <div class="stat-card"><strong><?= (int) $stats['members'] ?></strong><span>Community Members</span></div>
+</div>
+
 <div class="card">
-    <h2>System Status</h2>
-    <p class="muted">Phase 1 foundation health check.</p>
+    <h2>Recent Discussions</h2>
+    <?php if ($recentDiscussions === []): ?>
+        <p class="muted">No discussions yet. <a href="<?= e(url('/community/new')) ?>">Start one</a>.</p>
+    <?php else: ?>
+        <ul class="result-list">
+            <?php foreach ($recentDiscussions as $t): ?>
+                <li>
+                    <a href="<?= e(url('/thread/' . $t['id'])) ?>"><?= e((string) $t['title']) ?></a>
+                    <div class="muted small">
+                        [<?= e((string) $t['channel_name']) ?>]
+                        · <?= (int) $t['reply_count'] ?> replies
+                        <?php if ($t['status'] === 'solved'): ?> · ✓ Solved<?php endif; ?>
+                    </div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+</div>
+
+<details class="card">
+    <summary><strong>System Status</strong> <span class="muted">(foundation checks)</span></summary>
     <ul class="status-list">
         <?php foreach ($checks as $label => $ok): ?>
             <li>
@@ -31,26 +56,4 @@
             </li>
         <?php endforeach; ?>
     </ul>
-</div>
-
-<div class="card">
-    <h2>Session</h2>
-    <?php if ($user): ?>
-        <p>Logged in as <strong><?= e($user->username) ?></strong>
-            (<?= e(implode(', ', $user->roleNames())) ?>)</p>
-        <p class="muted">XSS check sample (escaped): <?= e('<script>alert(1)</script>') ?></p>
-    <?php else: ?>
-        <p>Not authenticated. <a href="<?= e(url('/login')) ?>">Log in</a> or
-            <a href="<?= e(url('/register')) ?>">register</a>.</p>
-    <?php endif; ?>
-</div>
-
-<div class="card">
-    <h2>Quick Links</h2>
-    <p class="muted" style="margin-top:0;">Jump into the foundation routes.</p>
-    <div class="hero-actions" style="margin-top:0.85rem;">
-        <a class="btn btn-primary" href="<?= e(url('/community')) ?>">Community</a>
-        <a class="btn" href="<?= e(url('/login')) ?>">Login</a>
-        <a class="btn" href="<?= e(url('/register')) ?>">Register</a>
-    </div>
-</div>
+</details>

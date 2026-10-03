@@ -18,9 +18,7 @@ final class Notification extends Model
     public bool $is_read;
     public string $created_at;
 
-    /**
-     * @param array<string, mixed> $row
-     */
+    /** @param array<string, mixed> $row */
     public function __construct(array $row)
     {
         $this->id = (int) $row['id'];
@@ -35,9 +33,35 @@ final class Notification extends Model
     }
 
     /**
+     * @param array{
+     *   user_id: int,
+     *   type: string,
+     *   title: string,
+     *   message?: ?string,
+     *   reference_type?: ?string,
+     *   reference_id?: ?int
+     * } $data
+     */
+    public static function create(array $data): void
+    {
+        self::execute(
+            'INSERT INTO notifications (user_id, type, title, message, reference_type, reference_id)
+             VALUES (?, ?, ?, ?, ?, ?)',
+            [
+                $data['user_id'],
+                $data['type'],
+                $data['title'],
+                $data['message'] ?? null,
+                $data['reference_type'] ?? null,
+                $data['reference_id'] ?? null,
+            ]
+        );
+    }
+
+    /**
      * @return list<self>
      */
-    public static function forUser(int $userId, int $limit = 20): array
+    public static function forUser(int $userId, int $limit = 30): array
     {
         $limit = max(1, min(100, $limit));
         $rows = self::fetchAll(
@@ -54,5 +78,18 @@ final class Notification extends Model
             [$userId]
         );
         return (int) ($row['cnt'] ?? 0);
+    }
+
+    public static function markReadForUser(int $userId, int $notificationId): void
+    {
+        self::execute(
+            'UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?',
+            [$notificationId, $userId]
+        );
+    }
+
+    public static function markAllRead(int $userId): void
+    {
+        self::execute('UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0', [$userId]);
     }
 }

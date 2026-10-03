@@ -26,6 +26,7 @@ INSERT INTO `categories` (`name`, `slug`, `description`, `icon`, `sort_order`) V
   ('Reverse Engineering', 'reverse-engineering', 'Binary analysis and RE techniques', 'cpu', 60),
   ('Cryptography', 'cryptography', 'Crypto concepts, attacks, and tooling', 'lock', 70),
   ('OSINT', 'osint', 'Open-source intelligence gathering', 'eye', 80),
+  ('Cloud Security', 'cloud-security', 'Cloud security and infrastructure hardening', 'cloud', 85),
   ('Academic', 'academic', 'Courses, assignments, and academic help', 'book', 90),
   ('Career', 'career', 'Internships, jobs, and career advice', 'briefcase', 100),
   ('CTF', 'ctf', 'Capture The Flag practice and teams', 'flag', 110);
@@ -70,6 +71,10 @@ SELECT c.id, '#osint', 'osint', 'OSINT discussions', 'text', 10
 FROM categories c WHERE c.slug = 'osint';
 
 INSERT INTO `channels` (`category_id`, `name`, `slug`, `description`, `channel_type`, `sort_order`)
+SELECT c.id, '#cloud-security', 'cloud-security', 'Cloud security discussions', 'text', 10
+FROM categories c WHERE c.slug = 'cloud-security';
+
+INSERT INTO `channels` (`category_id`, `name`, `slug`, `description`, `channel_type`, `sort_order`)
 SELECT c.id, '#assignment-help', 'assignment-help', 'Ask for assignment guidance (no cheating)', 'help', 10
 FROM categories c WHERE c.slug = 'academic';
 
@@ -99,7 +104,14 @@ INSERT INTO `tags` (`name`, `slug`) VALUES
   ('docker', 'docker'),
   ('malware', 'malware'),
   ('forensics', 'forensics'),
-  ('networking', 'networking');
+  ('networking', 'networking'),
+  ('nmap', 'nmap'),
+  ('powershell', 'powershell'),
+  ('encryption', 'encryption'),
+  ('hashing', 'hashing'),
+  ('ctf', 'ctf'),
+  ('web-security', 'web-security'),
+  ('reverse-engineering', 'reverse-engineering');
 
 -- ---------------------------------------------------------------------------
 -- Development users
@@ -108,9 +120,11 @@ INSERT INTO `tags` (`name`, `slug`) VALUES
 --   student1  / Student@123!
 --   student2  / Student@123!
 --   student3  / Student@123!
---   mentor1   / Mentor@123!
+--   mentor1     / Mentor@123!
+--   moderator1  / Student@123!
+--   instructor1 / Student@123!
 -- ---------------------------------------------------------------------------
-INSERT INTO `users` (`username`, `email`, `password_hash`, `full_name`, `student_id`, `year_level`, `program`, `status`) VALUES
+INSERT INTO `users` (`username`, `email`, `password_hash`, `full_name`, `student_id`, `year_level`, `program`, `bio`, `status`) VALUES
   (
     'admin',
     'admin@cyskillshare.local',
@@ -119,6 +133,7 @@ INSERT INTO `users` (`username`, `email`, `password_hash`, `full_name`, `student
     NULL,
     NULL,
     'College of Computing',
+    'Platform admin for CySkillShare development.',
     'active'
   ),
   (
@@ -129,6 +144,7 @@ INSERT INTO `users` (`username`, `email`, `password_hash`, `full_name`, `student
     '653040001-1',
     3,
     'Cybersecurity',
+    'Interested in web security and PHP.',
     'active'
   ),
   (
@@ -139,6 +155,7 @@ INSERT INTO `users` (`username`, `email`, `password_hash`, `full_name`, `student
     '653040002-2',
     2,
     'Cybersecurity',
+    'Learning digital forensics and networking.',
     'active'
   ),
   (
@@ -149,6 +166,7 @@ INSERT INTO `users` (`username`, `email`, `password_hash`, `full_name`, `student
     '653040003-3',
     4,
     'Computer Science',
+    'CTF player focusing on reversing.',
     'active'
   ),
   (
@@ -159,6 +177,29 @@ INSERT INTO `users` (`username`, `email`, `password_hash`, `full_name`, `student
     NULL,
     NULL,
     'Cybersecurity',
+    'Peer mentor for junior cybersecurity students.',
+    'active'
+  ),
+  (
+    'moderator1',
+    'moderator1@cyskillshare.local',
+    '$2y$12$jYDuehF9Q0rmMafHe4beQuLEoob8l5hon04UTuFILkOYaeIEzXL.q',
+    'Mod Pilot',
+    NULL,
+    NULL,
+    'Cybersecurity',
+    'Community moderator.',
+    'active'
+  ),
+  (
+    'instructor1',
+    'instructor1@cyskillshare.local',
+    '$2y$12$jYDuehF9Q0rmMafHe4beQuLEoob8l5hon04UTuFILkOYaeIEzXL.q',
+    'Dr. Kittipong',
+    NULL,
+    NULL,
+    'Cybersecurity',
+    'Instructor at College of Computing, KKU.',
     'active'
   );
 
@@ -184,12 +225,169 @@ SELECT u.id, r.id FROM users u, roles r WHERE u.username = 'mentor1' AND r.name 
 INSERT INTO `user_roles` (`user_id`, `role_id`)
 SELECT u.id, r.id FROM users u, roles r WHERE u.username = 'mentor1' AND r.name = 'student';
 
--- Sample thread (optional foundation content)
+INSERT INTO `user_roles` (`user_id`, `role_id`)
+SELECT u.id, r.id FROM users u, roles r WHERE u.username = 'moderator1' AND r.name IN ('moderator', 'student');
+
+INSERT INTO `user_roles` (`user_id`, `role_id`)
+SELECT u.id, r.id FROM users u, roles r WHERE u.username = 'instructor1' AND r.name IN ('instructor', 'student');
+
+-- ---------------------------------------------------------------------------
+-- Phase 2 community seed content
+-- ---------------------------------------------------------------------------
+
+-- Pinned welcome
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`, `is_pinned`)
+SELECT ch.id, u.id,
+  'Welcome to CySkillShare Community',
+  'Welcome to the cybersecurity learning community at College of Computing, KKU.\n\nPlease:\n- Be respectful\n- Do not share exam answers that violate academic integrity\n- Prefer technical discussion with evidence\n- Use tags so others can find your posts\n\nAsk → Discuss → Help → Solve → Share Knowledge',
+  'open', 1
+FROM channels ch, users u
+WHERE ch.slug = 'general' AND u.username = 'moderator1' LIMIT 1;
+
 INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
 SELECT ch.id, u.id,
-  'Welcome to CySkillShare',
-  'This is a development foundation thread. Feel free to explore channels and reply once forums are fully built in later phases.',
+  'How does CSRF actually work?',
+  'I''m trying to understand why a malicious website can trigger requests on a site where I am already logged in.\n\n1. Does the browser always send cookies?\n2. Why is SameSite helpful?\n3. When do we still need CSRF tokens?\n\nLooking for a clear explanation with a PHP example.',
+  'solved'
+FROM channels ch, users u WHERE ch.slug = 'web-security' AND u.username = 'student2' LIMIT 1;
+
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
+SELECT ch.id, u.id,
+  'Understanding prepared statements in PHP',
+  'I''m currently working on a PHP assignment using PDO.\n\nIs using prepared statements enough to prevent SQL injection, or should I also validate the input?\n\n```php\n$stmt = $pdo->prepare(\"SELECT * FROM users WHERE username = ?\");\n$stmt->execute([$username]);\n```\n\nAny best practices from seniors?',
+  'solved'
+FROM channels ch, users u WHERE ch.slug = 'web-security' AND u.username = 'student1' LIMIT 1;
+
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
+SELECT ch.id, u.id,
+  'How to read a Wireshark TCP stream?',
+  'In Wireshark I can see many packets for an HTTP session. What is the fastest way to follow a TCP stream and extract the request/response body for analysis?',
   'open'
-FROM channels ch, users u
-WHERE ch.slug = 'introductions' AND u.username = 'admin'
-LIMIT 1;
+FROM channels ch, users u WHERE ch.slug = 'network-security' AND u.username = 'student2' LIMIT 1;
+
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
+SELECT ch.id, u.id,
+  'Nmap SYN scan vs TCP connect scan',
+  'What is the practical difference between `-sS` and `-sT` when scanning lab machines? When would a connect scan be preferred?',
+  'open'
+FROM channels ch, users u WHERE ch.slug = 'network-security' AND u.username = 'student3' LIMIT 1;
+
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
+SELECT ch.id, u.id,
+  'How should I approach my first CTF?',
+  'I want to join my first CTF this semester. Which categories should beginners start with, and what tools should I install first on Linux?',
+  'open'
+FROM channels ch, users u WHERE ch.slug = 'ctf-general' AND u.username = 'student1' LIMIT 1;
+
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
+SELECT ch.id, u.id,
+  'Basic Linux permissions for cybersecurity',
+  'Can someone explain when we use chmod 600 vs 644 for config files containing secrets? Looking for practical guidance for lab reports.',
+  'open'
+FROM channels ch, users u WHERE ch.slug = 'assignment-help' AND u.username = 'student2' LIMIT 1;
+
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
+SELECT ch.id, u.id,
+  'How to identify suspicious PowerShell activity?',
+  'In a DFIR exercise we have Windows event logs. Which Event IDs or command-line patterns usually indicate suspicious PowerShell usage?',
+  'open'
+FROM channels ch, users u WHERE ch.slug = 'digital-forensics' AND u.username = 'student3' LIMIT 1;
+
+INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`)
+SELECT ch.id, u.id,
+  'What is the difference between hashing and encryption?',
+  'I still confuse hashing and encryption in cryptography class. Can someone explain with cybersecurity examples (password storage vs TLS)?',
+  'solved'
+FROM channels ch, users u WHERE ch.slug = 'cryptography' AND u.username = 'student1' LIMIT 1;
+
+-- Tags for threads
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'How does CSRF actually work?' AND tg.slug IN ('csrf', 'web-security', 'php');
+
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'Understanding prepared statements in PHP' AND tg.slug IN ('php', 'sql-injection', 'web-security');
+
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'How to read a Wireshark TCP stream?' AND tg.slug IN ('wireshark', 'networking');
+
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'Nmap SYN scan vs TCP connect scan' AND tg.slug IN ('nmap', 'networking');
+
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'How should I approach my first CTF?' AND tg.slug IN ('ctf', 'linux');
+
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'Basic Linux permissions for cybersecurity' AND tg.slug IN ('linux');
+
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'How to identify suspicious PowerShell activity?' AND tg.slug IN ('powershell', 'forensics');
+
+INSERT INTO thread_tags (thread_id, tag_id)
+SELECT t.id, tg.id FROM threads t, tags tg
+WHERE t.title = 'What is the difference between hashing and encryption?' AND tg.slug IN ('hashing', 'encryption');
+
+-- Replies + best answers
+INSERT INTO replies (thread_id, user_id, content, is_best_answer)
+SELECT t.id, u.id,
+  'Yes — browsers send cookies on cross-site form POSTs by default for many legacy sites.\n\n**SameSite=Lax/Strict** reduces many CSRF cases, but APIs and older browsers still need tokens.\n\nA practical pattern in PHP is a per-session CSRF token checked on every state-changing request.',
+  1
+FROM threads t, users u
+WHERE t.title = 'How does CSRF actually work?' AND u.username = 'mentor1' LIMIT 1;
+
+INSERT INTO replies (thread_id, user_id, content, is_best_answer)
+SELECT t.id, u.id,
+  'Prepared statements are the core control against SQL injection for query structure.\n\nYou should still validate/normalize input for business rules (length, type, allowlists), but validation alone is **not** a substitute for parameterization.\n\nNever concatenate user input into SQL.',
+  1
+FROM threads t, users u
+WHERE t.title = 'Understanding prepared statements in PHP' AND u.username = 'instructor1' LIMIT 1;
+
+INSERT INTO replies (thread_id, user_id, content)
+SELECT t.id, u.id,
+  'Right-click a packet → Follow → TCP Stream. Use the drop-down to switch client/server and export as raw/ASCII for writeups.'
+FROM threads t, users u
+WHERE t.title = 'How to read a Wireshark TCP stream?' AND u.username = 'mentor1' LIMIT 1;
+
+INSERT INTO replies (thread_id, user_id, content, is_best_answer)
+SELECT t.id, u.id,
+  '**Hashing** is one-way (password storage with salt/argon2). **Encryption** is reversible with a key (TLS, disk encryption).\n\nIf you need confidentiality and later recovery of the original value, encrypt. If you only need to verify later, hash.',
+  1
+FROM threads t, users u
+WHERE t.title = 'What is the difference between hashing and encryption?' AND u.username = 'mentor1' LIMIT 1;
+
+-- Votes
+INSERT INTO votes (user_id, target_type, target_id, vote_type)
+SELECT u.id, 'thread', t.id, 'up'
+FROM users u, threads t
+WHERE u.username IN ('student1', 'student3', 'mentor1') AND t.title = 'How does CSRF actually work?';
+
+INSERT INTO votes (user_id, target_type, target_id, vote_type)
+SELECT u.id, 'thread', t.id, 'up'
+FROM users u, threads t
+WHERE u.username IN ('student2', 'mentor1', 'moderator1') AND t.title = 'Understanding prepared statements in PHP';
+
+-- Bookmarks
+INSERT INTO bookmarks (user_id, target_type, target_id)
+SELECT u.id, 'thread', t.id
+FROM users u, threads t
+WHERE u.username = 'student1' AND t.title IN (
+  'How does CSRF actually work?',
+  'How should I approach my first CTF?'
+);
+
+-- Notifications
+INSERT INTO notifications (user_id, type, title, message, reference_type, reference_id, is_read)
+SELECT u.id, 'thread_reply', 'mentor1 replied to your discussion.', '“How does CSRF actually work?”', 'thread', t.id, 0
+FROM users u, threads t
+WHERE u.username = 'student2' AND t.title = 'How does CSRF actually work?' LIMIT 1;
+
+INSERT INTO notifications (user_id, type, title, message, reference_type, reference_id, is_read)
+SELECT u.id, 'best_answer', 'Your reply was marked as the best answer.', '“Understanding prepared statements in PHP”', 'thread', t.id, 0
+FROM users u, threads t
+WHERE u.username = 'instructor1' AND t.title = 'Understanding prepared statements in PHP' LIMIT 1;

@@ -128,3 +128,55 @@ if (!function_exists('now')) {
         return (new DateTimeImmutable('now'))->format('Y-m-d H:i:s');
     }
 }
+
+if (!function_exists('time_ago')) {
+    function time_ago(string $datetime): string
+    {
+        try {
+            $then = new DateTimeImmutable($datetime);
+        } catch (Exception) {
+            return $datetime;
+        }
+
+        $diff = (new DateTimeImmutable('now'))->getTimestamp() - $then->getTimestamp();
+        if ($diff < 60) {
+            return 'just now';
+        }
+        if ($diff < 3600) {
+            $m = (int) floor($diff / 60);
+            return $m . ' min ago';
+        }
+        if ($diff < 86400) {
+            $h = (int) floor($diff / 3600);
+            return $h . 'h ago';
+        }
+        if ($diff < 604800) {
+            $d = (int) floor($diff / 86400);
+            return $d . 'd ago';
+        }
+        return $then->format('M j, Y');
+    }
+}
+
+if (!function_exists('markdown')) {
+    function markdown(string $content): string
+    {
+        return \App\Core\ContentFormatter::render($content);
+    }
+}
+
+if (!function_exists('excerpt')) {
+    function excerpt(string $content, int $length = 180): string
+    {
+        return \App\Core\ContentFormatter::excerpt($content, $length);
+    }
+}
+
+if (!function_exists('request_path')) {
+    function request_path(): string
+    {
+        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $path = is_string($path) ? rawurldecode($path) : '/';
+        return $path === '/' ? '/' : rtrim($path, '/');
+    }
+}

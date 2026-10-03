@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\RateLimiter;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\Validator;
@@ -37,6 +38,13 @@ final class AuthController extends Controller
             $this->withErrors($validator->errors(), ['login' => $data['login']]);
             $this->redirect('/login');
         }
+
+        if (!RateLimiter::attempt(null, 'login_attempt', 20, 300)) {
+            http_response_code(429);
+            $this->withError('Too many login attempts. Please wait and try again.');
+            $this->redirect('/login');
+        }
+        ActivityLogService::log(null, 'login_attempt', 'user', null, ['login' => $data['login']]);
 
         if (!Auth::attempt($data['login'], $data['password'])) {
             $this->withError('Invalid credentials or inactive account.');

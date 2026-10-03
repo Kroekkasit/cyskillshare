@@ -8,6 +8,9 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Request;
+use App\Models\Channel;
+use App\Models\Thread;
+use App\Models\User;
 
 final class HomeController extends Controller
 {
@@ -27,11 +30,21 @@ final class HomeController extends Controller
             $checks['Database Connection'] = false;
         }
 
+        $stats = [
+            'discussions' => Thread::countAll(),
+            'solved_week' => Thread::countSolvedSince(date('Y-m-d H:i:s', strtotime('-7 days') ?: 'now')),
+            'members' => User::countActive(),
+        ];
+
         $this->view('pages/home', [
-            'title' => 'CySkillShare — System Status',
+            'title' => 'CySkillShare',
             'checks' => $checks,
             'user' => Auth::user(),
             'phpVersion' => PHP_VERSION,
+            'stats' => $stats,
+            'recentDiscussions' => Thread::recent(6),
+            'channelsGrouped' => Channel::groupedForSidebar(),
+            'activeChannel' => null,
         ]);
     }
 }

@@ -18,9 +18,7 @@ final class Reply extends Model
     public string $updated_at;
     public ?string $deleted_at;
 
-    /**
-     * @param array<string, mixed> $row
-     */
+    /** @param array<string, mixed> $row */
     public function __construct(array $row)
     {
         $this->id = (int) $row['id'];
@@ -43,14 +41,18 @@ final class Reply extends Model
     /**
      * @return list<array<string, mixed>>
      */
-    public static function byThread(int $threadId): array
+    public static function byThread(int $threadId, bool $includeDeletedForStaff = false): array
     {
+        $deletedSql = $includeDeletedForStaff ? '' : 'AND r.deleted_at IS NULL';
+
         return self::fetchAll(
-            'SELECT r.*, u.username
+            "SELECT r.*, u.username, u.full_name, u.year_level, u.program,
+                    (SELECT COALESCE(SUM(CASE WHEN v.vote_type = 'up' THEN 1 WHEN v.vote_type = 'down' THEN -1 ELSE 0 END), 0)
+                     FROM votes v WHERE v.target_type = 'reply' AND v.target_id = r.id) AS score
              FROM replies r
              INNER JOIN users u ON u.id = r.user_id
-             WHERE r.thread_id = ? AND r.deleted_at IS NULL
-             ORDER BY r.created_at ASC',
+             WHERE r.thread_id = ? {$deletedSql}
+             ORDER BY r.is_best_answer DESC, r.created_at ASC",
             [$threadId]
         );
     }
@@ -78,9 +80,20 @@ final class Reply extends Model
         return $reply;
     }
 
+    public static function updateContent(int $id, string $content): void
+    {
+        self::execute('UPDATE replies SET content = ? WHERE id = ?', [$content, $id]);
+    }
+
+    public static function setBestAnswer(int $id, bool $isBest): void
+    {
+        self::execute('UPDATE replies SET is_best_answer = ? WHERE id = ?', [$isBest ? 1 : 0, $id]);
+    }
+
     public function softDelete(): void
     {
-        self::execute('UPDATE replies SET deleted_at = NOW() WHERE id = ?', [$this->id]);
+        self::execute('UPDATE replies SET deleted_at = NOW(), is_best_answer = 0 WHERE id = ?', [$this->id]);
         $this->deleted_at = date('Y-m-d H:i:s');
+        $this->is_best_answer = false;
     }
 }

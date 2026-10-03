@@ -19,9 +19,7 @@ final class Report extends Model
     public ?string $reviewed_at;
     public string $created_at;
 
-    /**
-     * @param array<string, mixed> $row
-     */
+    /** @param array<string, mixed> $row */
     public function __construct(array $row)
     {
         $this->id = (int) $row['id'];
@@ -40,5 +38,66 @@ final class Report extends Model
     {
         $row = self::fetch('SELECT * FROM reports WHERE id = ? LIMIT 1', [$id]);
         return $row ? new self($row) : null;
+    }
+
+    public static function existsPending(int $reporterId, string $targetType, int $targetId): bool
+    {
+        $row = self::fetch(
+            "SELECT id FROM reports
+             WHERE reporter_id = ? AND target_type = ? AND target_id = ? AND status = 'pending'
+             LIMIT 1",
+            [$reporterId, $targetType, $targetId]
+        );
+        return $row !== null;
+    }
+
+    /**
+     * @param array{
+     *   reporter_id: int,
+     *   target_type: string,
+     *   target_id: int,
+     *   reason: string,
+     *   description?: ?string
+     * } $data
+     */
+    public static function create(array $data): int
+    {
+        self::execute(
+            'INSERT INTO reports (reporter_id, target_type, target_id, reason, description, status)
+             VALUES (?, ?, ?, ?, ?, ?)',
+            [
+                $data['reporter_id'],
+                $data['target_type'],
+                $data['target_id'],
+                $data['reason'],
+                $data['description'] ?? null,
+                'pending',
+            ]
+        );
+        return (int) self::lastInsertId();
+    }
+
+    public static function updateStatus(int $id, string $status, int $reviewedBy): void
+    {
+        self::execute(
+            'UPDATE reports SET status = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?',
+            [$status, $reviewedBy, $id]
+        );
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function pendingList(int $limit = 50): array
+    {
+        $limit = max(1, min(100, $limit));
+        return self::fetchAll(
+            "SELECT r.*, u.username AS reporter_username
+             FROM reports r
+             INNER JOIN users u ON u.id = r.reporter_id
+             WHERE r.status = 'pending'
+             ORDER BY r.created_at ASC
+             LIMIT {$limit}"
+        );
     }
 }

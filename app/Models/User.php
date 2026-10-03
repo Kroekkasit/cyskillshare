@@ -146,4 +146,59 @@ final class User extends Model
     {
         return in_array($roleName, $this->roleNames(), true);
     }
+
+    public function discussionCount(): int
+    {
+        $row = self::fetch(
+            'SELECT COUNT(*) AS cnt FROM threads WHERE user_id = ? AND deleted_at IS NULL',
+            [$this->id]
+        );
+        return (int) ($row['cnt'] ?? 0);
+    }
+
+    public function replyCount(): int
+    {
+        $row = self::fetch(
+            'SELECT COUNT(*) AS cnt FROM replies WHERE user_id = ? AND deleted_at IS NULL',
+            [$this->id]
+        );
+        return (int) ($row['cnt'] ?? 0);
+    }
+
+    public function bestAnswerCount(): int
+    {
+        $row = self::fetch(
+            'SELECT COUNT(*) AS cnt FROM replies
+             WHERE user_id = ? AND is_best_answer = 1 AND deleted_at IS NULL',
+            [$this->id]
+        );
+        return (int) ($row['cnt'] ?? 0);
+    }
+
+    public function updateProfile(?string $bio, ?string $fullName): void
+    {
+        self::execute(
+            'UPDATE users SET bio = ?, full_name = ? WHERE id = ?',
+            [$bio, $fullName, $this->id]
+        );
+        $this->bio = $bio;
+        $this->full_name = $fullName;
+    }
+
+    public static function countActive(): int
+    {
+        $row = self::fetch("SELECT COUNT(*) AS cnt FROM users WHERE status = 'active'");
+        return (int) ($row['cnt'] ?? 0);
+    }
+
+    public function primaryRoleLabel(): string
+    {
+        $roles = $this->roleNames();
+        foreach (['admin', 'moderator', 'instructor', 'mentor', 'student'] as $role) {
+            if (in_array($role, $roles, true)) {
+                return ucfirst($role);
+            }
+        }
+        return 'Member';
+    }
 }

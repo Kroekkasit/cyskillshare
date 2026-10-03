@@ -128,11 +128,14 @@ CREATE TABLE `threads` (
   `views` INT UNSIGNED NOT NULL DEFAULT 0,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `threads_channel_id_index` (`channel_id`),
   KEY `threads_user_id_index` (`user_id`),
   KEY `threads_status_index` (`status`),
   KEY `threads_created_at_index` (`created_at`),
+  KEY `threads_deleted_at_index` (`deleted_at`),
+  KEY `threads_pinned_created_index` (`is_pinned`, `created_at`),
   CONSTRAINT `threads_channel_id_fk`
     FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`) ON DELETE CASCADE,
   CONSTRAINT `threads_user_id_fk`

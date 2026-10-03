@@ -2,7 +2,10 @@
 
 Cybersecurity skill-sharing platform for students at the **College of Computing, Khon Kaen University (KKU)**.
 
-This repository currently contains **Phase 1**: project architecture, database schema, and a secure PHP foundation.
+This repository currently contains:
+
+- **Phase 1** — secure PHP foundation (auth, PDO, CSRF, RBAC, routing)
+- **Phase 2** — Community & Discussion system
 
 ## Requirements
 
@@ -25,19 +28,11 @@ docker compose up -d --build
 
 Open http://localhost:8080
 
-Schema and seed data load automatically on the **first** database container start (Docker volume init).
+Schema and seed data load automatically on the **first** database container start.
 
-### Useful commands
+### Reset database (re-seed)
 
 ```bash
-# View logs
-docker compose logs -f app
-docker compose logs -f db
-
-# Stop
-docker compose down
-
-# Reset database (re-run schema + seed)
 docker compose down -v
 docker compose up -d --build
 ```
@@ -47,60 +42,58 @@ docker compose up -d --build
 | Service | Container | Host access |
 |---------|-----------|-------------|
 | `app` | PHP 8.2 + Apache | http://localhost:8080 |
-| `db` | MySQL 8.4 | **not** published to the host (Docker network only) |
+| `db` | MySQL 8.4 | Docker network only (`DB_HOST=db`) |
 
-App connects to MySQL with `DB_HOST=db` (Compose service name).
+## Community System (Phase 2)
 
-Why `docker/` exists: Dockerfile and container entrypoint stay out of application code.
+Features:
 
-## Directory structure
+- Channels (loaded from DB)
+- Discussions / threads (create, edit, soft-delete)
+- Replies (edit, soft-delete)
+- Voting (upvote/downvote, one vote per user/target, no self-votes)
+- Best answers → marks thread `solved`
+- Bookmarks (`/community/bookmarks`)
+- Tags + `/tag/{slug}`
+- Search (`/search?q=`)
+- Notifications (reply, mention `@user`, best answer)
+- Reports + moderator queue (`/moderation/reports`)
+- Pin / lock threads (moderator/admin)
+- User profiles with real contribution counts
+- Pagination + safe sort whitelist
+- Restricted Markdown (escaped; code blocks with copy button)
+- Dark Cyber Academy theme (+ light toggle)
 
-```text
-cyskillshare/
-├── app/                 Controllers, Models, Services, Middleware, Helpers, Core
-├── bootstrap/           Application bootstrapping
-├── config/              app.php, database.php
-├── database/            schema.sql, seed.sql (auto-imported by MySQL container)
-├── docker/              PHP/Apache image + entrypoint
-├── docker-compose.yml
-├── public/              Web root (index.php, assets, .htaccess)
-├── resources/views/     Layouts, components, pages
-├── routes/              web.php
-└── storage/             logs/, uploads/
-```
+### Definitions
 
-## Development
+- **Unanswered** = threads with **0 non-deleted replies**
+- **Solved** = `threads.status = solved` (set when a best answer is marked)
 
-- Routes live in `routes/web.php`.
-- Controllers stay thin; SQL belongs in Models; HTML belongs in Views.
-- Shared security tools: `Auth`, `Csrf`, `Validator`, `Session`, `e()`.
-- Errors in development are displayed; in production they are logged to `storage/logs/app.log`.
-- Source code is bind-mounted into the `app` container — edit locally, refresh the browser.
+### How to create a discussion
 
-### Architecture decisions (Phase 1)
+1. Login
+2. Open `/community` → **+ New Discussion**
+3. Choose channel, title, content, optional tags
+4. Submit (CSRF + server validation required)
 
-- Plain PHP MVC-inspired layout (no Laravel/ORM).
-- Polymorphic `votes` / `bookmarks` / `reports` use allowlisted `target_type` values validated in application code.
-- Soft deletes on `replies` (`deleted_at`) for moderation/audit.
-- Roles via `roles` + `user_roles` (not a free-text column on `users`).
+### How to mark a best answer
 
-## Security
+1. Open your thread (or act as moderator/admin)
+2. On a reply, click **Mark Best Answer**
+3. Thread status becomes `solved`
 
-| Control | Implementation |
-|---------|----------------|
-| Password hashing | `password_hash()` / `password_verify()` with `PASSWORD_DEFAULT` |
-| CSRF | `Csrf::token()` / middleware on state-changing routes |
-| Sessions | HttpOnly, SameSite=Lax, Secure when HTTPS; regenerate on login; destroy on logout |
-| Authorization | Server-side `Auth::hasRole()`, `Auth::requireRole()`, `Auth::canManage()` |
-| SQL | PDO prepared statements only |
-| XSS | `e()` helper (`htmlspecialchars`) for all user-generated output |
-| Secrets | Credentials in `.env` (not committed); activity logs redact sensitive keys |
+### How moderation works
 
-Protected paths (`/app`, `/config`, `/database`, `/storage`, `.env`) are outside the public document root. MySQL is not exposed on the host.
+Accounts with `moderator` or `admin` roles can:
+
+- Visit `/moderation/reports`
+- Resolve / dismiss reports
+- Pin / lock threads
+- Soft-delete content
+
+Actions are written to `activity_logs`.
 
 ## Demo accounts (DEVELOPMENT ONLY)
-
-**Do not use these credentials in production.**
 
 | Username | Password | Roles |
 |----------|----------|-------|
@@ -109,21 +102,38 @@ Protected paths (`/app`, `/config`, `/database`, `/storage`, `.env`) are outside
 | `student2` | `Student@123!` | student |
 | `student3` | `Student@123!` | student |
 | `mentor1` | `Mentor@123!` | mentor, student |
+| `moderator1` | `Student@123!` | moderator, student |
+| `instructor1` | `Student@123!` | instructor, student |
 
-## Security test checklist (Phase 1)
+## Security testing notes
 
-- [x] PDO + prepared statements + utf8mb4
-- [x] Password hash/verify
-- [x] Session start, regenerate on login, destroy on logout
-- [x] Unauthenticated users blocked from protected actions
-- [x] Students cannot access `/admin/demo`
-- [x] Missing/invalid CSRF rejected on POST
-- [x] XSS payload rendered as text via `e()`
-- [x] SQL built with bound parameters (no string concatenation of user input)
+Verify manually:
 
-## What is intentionally not in Phase 1
+- Anonymous users cannot create/reply/vote
+- User A cannot edit User B’s thread/reply (403)
+- Students cannot open `/moderation/reports`
+- Missing/invalid CSRF rejected
+- `<script>alert(1)</script>` renders as text
+- `' OR '1'='1` does not bypass auth/search
+- Locked threads reject reply POSTs
+- Vote uniqueness + no self-vote
+- Mass-assignment fields (`is_pinned`, `user_id`, etc.) are not taken from raw `$_POST`
 
-CTF engine, Docker labs, AI assistant, skill tree/XP/achievements, leaderboard, mentorship UI, advanced analytics, and polished forum design — reserved for later phases. The schema is structured so those features can be added without redesigning core tables.
+## Directory structure
+
+```text
+cyskillshare/
+├── app/                 Controllers, Models, Services, Middleware, Helpers, Core
+├── bootstrap/
+├── config/
+├── database/            schema.sql, seed.sql, migrations/
+├── docker/
+├── docker-compose.yml
+├── public/
+├── resources/views/
+├── routes/web.php
+└── storage/
+```
 
 ## License
 
