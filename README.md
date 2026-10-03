@@ -11,6 +11,7 @@ This repository currently contains:
 - **Phase 5** — Cybersecurity Portfolio & Project Showcase
 - **Phase 6** — Technical Writeups & Cybersecurity Knowledge Base
 - **Phase 7** — Cyber Labs & Practical Training Environments
+- **Phase 8** — Mentorship, Study Groups & Team Collaboration
 
 ## Requirements
 
@@ -48,6 +49,8 @@ Schema and seed data (including Arena challenges/events) load automatically on t
 11. `11-seed-knowledge.sql` — demo writeups & knowledge articles  
 12. `12-labs-schema.sql` — Cyber Labs tables + FKs to stubs  
 13. `13-seed-labs.sql` — demo labs, tasks, validations, hints  
+14. `14-collaboration-schema.sql` — groups, mentors, recruitment, blocks  
+15. `15-seed-collaboration.sql` — demo groups, mentors, CTF team  
 
 ### Reset database (re-seed)
 
@@ -120,6 +123,50 @@ Accounts with `moderator` or `admin` roles can:
 - Soft-delete content
 
 Actions are written to `activity_logs`.
+
+## Collaboration (Phase 8)
+
+Mentorship, study groups, CTF teams, project teams, people discovery, and recruitment — skill-relevant matching without popularity contests.
+
+> Portfolio `/projects` remains individual showcases. Collaboration project teams use `collab_groups` with `group_type=project` (not a second projects table).
+
+Features:
+
+- Study groups, CTF teams, and project teams (`collab_groups`) with join policies, skills, goals, activities, resources
+- Mentors (optional verification by staff) + mentorship requests, goals, sessions
+- People discovery by skill / mentor availability with explainable reasons
+- Deterministic collaboration recommendations (`CollaborationMatchService`)
+- Recruitment posts + applications
+- User blocking + report targets for groups
+- Discovery privacy (`users.show_in_discovery`)
+- Rate limits on invites, join requests, mentorship requests, searches
+
+### Key URLs
+
+| Path | Purpose |
+|------|---------|
+| `/collaboration` | Recommended matches hub |
+| `/people` | People discovery |
+| `/groups` | Study / project groups |
+| `/teams` | CTF teams |
+| `/mentors` | Mentor directory |
+| `/mentorship` | My mentorships |
+| `/recruitment` | Looking for teammates |
+| `/admin/collaboration` | Staff verify mentors / suspend groups |
+
+### Demo seed
+
+- Groups: Web Security Study Group, Linux & Networking, Digital Forensics Club, Packet Pirates (CTF), Open Source SOC Dashboard (project)
+- Mentors: `mentor1` (verified), `instructor1` (verified), `student1` (peer)
+- Active mentorship: mentor1 ↔ student3
+- Recruitment: Web Security teammate for Packet Pirates
+
+### Security notes
+
+- No self-verification of mentors; no mass-assignment of `owner_id` / `verification_status` / group `role`
+- Mentorship IDOR protected via participant checks
+- Meeting links must be HTTPS; content escaped
+- See `docs/COLLABORATION_TEST_CHECKLIST.md`
 
 ## Cyber Labs (Phase 7)
 

@@ -3002,3 +3002,187 @@ footer.site-footer {
     display: block;
   }
 }
+
+/* ── Collaboration (Phase 8) ── */
+.group-grid,
+.people-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin: 1rem 0;
+}
+
+.group-grid-compact {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.collab-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 100%;
+}
+
+.group-card-head,
+.person-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.group-card-head h3,
+.person-card-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.group-card-meta,
+.person-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.group-type-pill {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.group-card-excerpt,
+.person-card-bio {
+  margin: 0;
+  flex: 1;
+}
+
+.group-card-link {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.reason-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.reason-chip {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--text-muted);
+}
+
+.mentorship-dashboard,
+.mentorship-dashboard-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.mentorship-dashboard {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.mentorship-dashboard-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.mentorship-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mentorship-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.mentorship-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.collab-filters .filter-row {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+}
+
+.collab-stats .stat-card strong {
+  font-size: 1.4rem;
+}
+
+.ctf-dashboard h3 {
+  margin-top: 1rem;
+}
+
+.member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.member-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recruitment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recruitment-card h3 {
+  margin: 0 0 0.35rem;
+}
+
+.collab-section + .collab-section {
+  margin-top: 1rem;
+}
+
+.skill-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.35rem 0.75rem;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.mentor-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+  margin-top: 1rem;
+}
+
+.mentor-meta dt {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.mentor-meta dd {
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  .group-grid,
+  .people-grid {
+    grid-template-columns: 1fr;
+  }
+}

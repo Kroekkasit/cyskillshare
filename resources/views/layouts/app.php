@@ -58,6 +58,14 @@ $isCommunity = is_array($channelsGrouped);
                href="<?= e(url('/community')) ?>">
                 <span class="icon">#</span> Community
             </a>
+            <a class="<?= str_starts_with($path, '/collaboration') || str_starts_with($path, '/people') || str_starts_with($path, '/groups') || str_starts_with($path, '/teams') || str_starts_with($path, '/recruitment') ? 'is-active' : '' ?>"
+               href="<?= e(url('/collaboration')) ?>">
+                <span class="icon">◉</span> Collaboration
+            </a>
+            <a class="<?= str_starts_with($path, '/mentors') || str_starts_with($path, '/mentorship') ? 'is-active' : '' ?>"
+               href="<?= e(url('/mentors')) ?>">
+                <span class="icon">☆</span> Mentors
+            </a>
             <a class="<?= str_starts_with($path, '/arena') ? 'is-active' : '' ?>"
                href="<?= e(url('/arena')) ?>">
                 <span class="icon">⚔</span> Arena

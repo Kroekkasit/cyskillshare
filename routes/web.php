@@ -10,7 +10,14 @@ use App\Controllers\ArenaProgressController;
 use App\Controllers\AuthController;
 use App\Controllers\BookmarkController;
 use App\Controllers\ChallengeController;
+use App\Controllers\CollabAdminController;
 use App\Controllers\CommunityController;
+use App\Controllers\GroupController;
+use App\Controllers\MentorController;
+use App\Controllers\MentorshipController;
+use App\Controllers\PeopleController;
+use App\Controllers\RecruitmentController;
+use App\Controllers\TeamController;
 use App\Controllers\HomeController;
 use App\Controllers\KnowledgeController;
 use App\Controllers\KnowledgeReviewController;
@@ -244,3 +251,47 @@ $router->get('/admin/writeups', [WriteupAdminController::class, 'index'], [AuthM
 $router->post('/admin/writeups/{id}/feature', [WriteupAdminController::class, 'feature'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/admin/knowledge/review', [KnowledgeReviewController::class, 'index'], [AuthMiddleware::class]);
 $router->post('/admin/knowledge/{id}/review', [KnowledgeReviewController::class, 'review'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// Collaboration — static paths before parameterized routes
+$router->get('/collaboration', [PeopleController::class, 'collaboration']);
+$router->get('/people', [PeopleController::class, 'index']);
+$router->post('/people/privacy', [PeopleController::class, 'privacy'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/people/{username}/block', [PeopleController::class, 'block'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/people/{username}/unblock', [PeopleController::class, 'unblock'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+$router->get('/groups', [GroupController::class, 'index']);
+$router->get('/groups/create', [GroupController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/groups/create', [GroupController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/groups/{slug}', [GroupController::class, 'show']);
+$router->post('/groups/{id}/join', [GroupController::class, 'join'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/groups/{id}/leave', [GroupController::class, 'leave'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/groups/{id}/invite', [GroupController::class, 'invite'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/groups/{id}/join-requests/{requestId}', [GroupController::class, 'reviewJoin'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/groups/invitations/{id}/respond', [GroupController::class, 'respondInvite'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/groups/{id}/edit', [GroupController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+$router->get('/teams', [TeamController::class, 'index']);
+$router->get('/teams/create', [TeamController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/teams/create', [TeamController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/teams/{slug}', [TeamController::class, 'show']);
+
+$router->get('/mentors', [MentorController::class, 'index']);
+$router->get('/mentors/settings', [MentorController::class, 'settingsForm'], [AuthMiddleware::class]);
+$router->post('/mentors/settings', [MentorController::class, 'setup'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/mentors/{username}', [MentorController::class, 'show']);
+
+$router->get('/mentorship', [MentorshipController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/mentorship/request', [MentorshipController::class, 'request'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/mentorship/{id}', [MentorshipController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/mentorship/{id}/respond', [MentorshipController::class, 'respond'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/mentorship/{id}/goals', [MentorshipController::class, 'addGoal'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/mentorship/{id}/sessions', [MentorshipController::class, 'addSession'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+$router->get('/recruitment', [RecruitmentController::class, 'index']);
+$router->get('/recruitment/create', [RecruitmentController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/recruitment/create', [RecruitmentController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/recruitment/{id}/apply', [RecruitmentController::class, 'apply'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+$router->get('/admin/collaboration', [CollabAdminController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/admin/mentors/{id}/verify', [CollabAdminController::class, 'verifyMentor'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/groups/{id}/suspend', [CollabAdminController::class, 'suspendGroup'], [AuthMiddleware::class, CsrfMiddleware::class]);

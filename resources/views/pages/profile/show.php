@@ -10,6 +10,8 @@
  * @var bool $canViewSkills
  * @var list<array<string, mixed>> $topSkills
  * @var string $skillsVisibility
+ * @var array<string,mixed>|null $mentor
+ * @var bool $showInDiscovery
  */
 use App\Services\SkillTreeService;
 ?>
@@ -66,7 +68,30 @@ use App\Services\SkillTreeService;
 </div>
 <?php endif; ?>
 
+<?php if ($mentor !== null && ($mentor['verification_status'] ?? '') !== 'suspended'): ?>
+<div class="card">
+    <h2>Mentorship</h2>
+    <p>This member offers mentorship.</p>
+    <a class="btn btn-primary" href="<?= e(url('/mentors/' . $profile->username)) ?>">View mentor profile</a>
+</div>
+<?php endif; ?>
+
 <?php if ($isOwner): ?>
+<div class="card collab-privacy-card">
+    <h2>Discovery</h2>
+    <p class="muted">Control whether you appear in people search and collaboration recommendations.</p>
+    <form method="post" action="<?= e(url('/people/privacy')) ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="redirect" value="<?= e(url('/profile/' . $profile->username)) ?>">
+        <label class="checkbox-label">
+            <input type="checkbox" name="show_in_discovery" value="1"<?= $showInDiscovery ? ' checked' : '' ?>>
+            Show me in people discovery
+        </label>
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+    <p class="muted"><a href="<?= e(url('/mentors/settings')) ?>">Mentor settings</a></p>
+</div>
+
 <div class="card">
     <h2>Skills visibility</h2>
     <p class="muted">Control who can see your skill progress on this profile.</p>

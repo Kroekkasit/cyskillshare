@@ -18,7 +18,7 @@ final class ModerationService
         string $reason,
         ?string $description = null
     ): void {
-        $allowedTargets = ['thread', 'reply', 'user'];
+        $allowedTargets = ['thread', 'reply', 'user', 'collab_group'];
         $allowedReasons = [
             'spam',
             'harassment',

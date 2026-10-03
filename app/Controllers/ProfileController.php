@@ -12,6 +12,7 @@ use App\Core\Validator;
 use App\Models\Channel;
 use App\Models\Thread;
 use App\Models\User;
+use App\Services\MentorService;
 use App\Services\SkillTreeService;
 
 final class ProfileController extends Controller
@@ -53,11 +54,23 @@ final class ProfileController extends Controller
             );
         }
 
+        $mentor = MentorService::findByUserId($profile->id);
+        $showInDiscovery = true;
+        $discoveryRow = Database::fetch(
+            'SELECT show_in_discovery FROM users WHERE id = ? LIMIT 1',
+            [$profile->id]
+        );
+        if ($discoveryRow !== null) {
+            $showInDiscovery = (int) $discoveryRow['show_in_discovery'] === 1;
+        }
+
         $this->view('pages/profile/show', [
             'title' => '@' . $profile->username . ' — CySkillShare',
             'profile' => $profile,
             'roles' => $profile->roleNames(),
             'isOwner' => $viewerId === $profile->id,
+            'mentor' => $mentor,
+            'showInDiscovery' => $showInDiscovery,
             'discussionCount' => $profile->discussionCount(),
             'replyCount' => $profile->replyCount(),
             'bestAnswerCount' => $profile->bestAnswerCount(),

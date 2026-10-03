@@ -48,6 +48,37 @@ $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good
     <?php endif; ?>
 </div>
 
+<?php
+$collabItems = array_merge(
+    $collaboration['groups'] ?? [],
+    $collaboration['teams'] ?? [],
+    array_slice($collaboration['mentors'] ?? [], 0, 2)
+);
+?>
+<?php if ($collabItems !== []): ?>
+<div class="card">
+    <h2>Collaboration for You</h2>
+    <div class="group-grid group-grid-compact">
+        <?php foreach (array_slice($collabItems, 0, 3) as $item): ?>
+            <?php if (isset($item['group_type'])): ?>
+                <?php \App\Core\View::partial('partials/group-card', [
+                    'group' => $item,
+                    'basePath' => ($item['group_type'] ?? '') === 'ctf' ? '/teams' : '/groups',
+                ]); ?>
+            <?php else: ?>
+                <article class="person-card card collab-card">
+                    <h3><a href="<?= e(url('/mentors/' . ($item['username'] ?? ''))) ?>">@<?= e((string) ($item['username'] ?? '')) ?></a></h3>
+                    <?php if (!empty($item['reasons'])): ?>
+                        <?php \App\Core\View::partial('partials/reason-list', ['reasons' => $item['reasons']]); ?>
+                    <?php endif; ?>
+                </article>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
+    <a class="btn" href="<?= e(url('/collaboration')) ?>">Explore collaboration</a>
+</div>
+<?php endif; ?>
+
 <?php if (($recommendedLabs ?? []) !== []): ?>
 <div class="card">
     <h2>Recommended Labs</h2>

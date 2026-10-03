@@ -19,6 +19,7 @@ final class Config
             'portfolio' => $directory . '/portfolio.php',
             'writeups' => $directory . '/writeups.php',
             'labs' => $directory . '/labs.php',
+            'collaboration' => $directory . '/collaboration.php',
         ];
 
         foreach ($files as $key => $file) {
