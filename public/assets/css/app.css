@@ -1126,3 +1126,400 @@ footer.site-footer {
     animation: none !important;
   }
 }
+
+/* ---------- Cyber Arena ---------- */
+
+.arena-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+}
+
+.arena-nav a {
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.arena-nav a:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.arena-nav a.is-active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, #6366f1), color-mix(in srgb, var(--accent-2) 60%, #8b5cf6));
+  color: #fff;
+  border-color: transparent;
+}
+
+.arena-hero {
+  margin-bottom: 1.5rem;
+  padding: 2rem 1.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 18%, var(--surface)),
+    color-mix(in srgb, #8b5cf6 14%, var(--surface)));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+
+.arena-hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  background: linear-gradient(90deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.arena-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.arena-stat-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.arena-stat-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.arena-section {
+  margin-bottom: 2rem;
+}
+
+.arena-section h2 {
+  margin-bottom: 0.75rem;
+}
+
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.challenge-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.challenge-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.challenge-card-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.challenge-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.challenge-card-excerpt {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.challenge-card-link {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.category-card {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.category-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  transform: translateY(-2px);
+}
+
+.difficulty-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.difficulty-easy {
+  background: color-mix(in srgb, #22c55e 20%, transparent);
+  color: #16a34a;
+  border: 1px solid color-mix(in srgb, #22c55e 35%, transparent);
+}
+
+.difficulty-medium {
+  background: color-mix(in srgb, #eab308 20%, transparent);
+  color: #ca8a04;
+  border: 1px solid color-mix(in srgb, #eab308 35%, transparent);
+}
+
+.difficulty-hard {
+  background: color-mix(in srgb, #f97316 20%, transparent);
+  color: #ea580c;
+  border: 1px solid color-mix(in srgb, #f97316 35%, transparent);
+}
+
+.difficulty-expert {
+  background: color-mix(in srgb, #ef4444 20%, transparent);
+  color: #dc2626;
+  border: 1px solid color-mix(in srgb, #ef4444 35%, transparent);
+}
+
+[data-theme="dark"] .difficulty-easy { color: #4ade80; }
+[data-theme="dark"] .difficulty-medium { color: #facc15; }
+[data-theme="dark"] .difficulty-hard { color: #fb923c; }
+[data-theme="dark"] .difficulty-expert { color: #f87171; }
+
+.pill.featured {
+  color: #a78bfa;
+  border-color: color-mix(in srgb, #a78bfa 40%, var(--border));
+}
+
+.challenge-detail-head h1 {
+  margin: 0 0 0.5rem;
+}
+
+.challenge-detail-meta,
+.challenge-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.challenge-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.challenge-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.flag-box {
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  border: 2px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, #8b5cf6 15%, transparent);
+}
+
+.flag-box input[type="text"] {
+  font-family: ui-monospace, monospace;
+  font-size: 1rem;
+}
+
+.hint-card {
+  margin-bottom: 0.75rem;
+}
+
+.hint-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.hint-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.spoiler-note {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warning) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--border));
+}
+
+.arena-spoiler-banner a {
+  margin-left: 0.5rem;
+  font-weight: 600;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-table th {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.leaderboard-table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.rank-cell {
+  font-weight: 700;
+  color: var(--accent);
+  width: 4rem;
+}
+
+.admin-table {
+  font-size: 0.85rem;
+}
+
+.admin-table td,
+.admin-table th {
+  padding: 0.5rem 0.6rem;
+}
+
+.arena-filters .filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.file-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.file-list li:last-child {
+  border-bottom: none;
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0.75rem 1rem;
+  margin: 0;
+}
+
+.activity-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.activity-list li:last-child {
+  border-bottom: none;
+}
+
+.progress-bar {
+  display: inline-block;
+  width: 6rem;
+  height: 0.45rem;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #8b5cf6);
+  border-radius: 999px;
+}
+
+.admin-form fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.admin-form legend h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.challenge-checklist {
+  display: grid;
+  gap: 0.35rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.admin-hint-form {
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .leaderboard-table {
+    font-size: 0.82rem;
+  }
+
+  .leaderboard-table th:nth-child(3),
+  .leaderboard-table td:nth-child(3) {
+    display: none;
+  }
+
+  .admin-table .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.78rem;
+  }
+}

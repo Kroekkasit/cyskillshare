@@ -17,19 +17,22 @@ final class RateLimiter
     public static function attempt(?int $userId, string $action, int $maxAttempts, int $decaySeconds): bool
     {
         $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        $since = date('Y-m-d H:i:s', time() - $decaySeconds);
+        $decaySeconds = max(1, $decaySeconds);
 
+        // Compare using MySQL NOW() so PHP timezone ≠ DB timezone cannot bypass limits.
         if ($userId !== null) {
             $row = Database::fetch(
                 'SELECT COUNT(*) AS cnt FROM activity_logs
-                 WHERE user_id = ? AND action = ? AND created_at >= ?',
-                [$userId, $action, $since]
+                 WHERE user_id = ? AND action = ?
+                   AND created_at >= (NOW() - INTERVAL ' . (int) $decaySeconds . ' SECOND)',
+                [$userId, $action]
             );
         } else {
             $row = Database::fetch(
                 'SELECT COUNT(*) AS cnt FROM activity_logs
-                 WHERE user_id IS NULL AND action = ? AND ip_address = ? AND created_at >= ?',
-                [$action, $ip, $since]
+                 WHERE user_id IS NULL AND action = ? AND ip_address = ?
+                   AND created_at >= (NOW() - INTERVAL ' . (int) $decaySeconds . ' SECOND)',
+                [$action, $ip]
             );
         }
 

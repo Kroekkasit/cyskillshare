@@ -11,6 +11,7 @@ final class Thread extends Model
     public int $id;
     public int $channel_id;
     public int $user_id;
+    public ?int $challenge_id;
     public string $title;
     public string $content;
     public string $status;
@@ -27,6 +28,9 @@ final class Thread extends Model
         $this->id = (int) $row['id'];
         $this->channel_id = (int) $row['channel_id'];
         $this->user_id = (int) $row['user_id'];
+        $this->challenge_id = isset($row['challenge_id']) && $row['challenge_id'] !== null
+            ? (int) $row['challenge_id']
+            : null;
         $this->title = (string) $row['title'];
         $this->content = (string) $row['content'];
         $this->status = (string) $row['status'];
@@ -53,21 +57,37 @@ final class Thread extends Model
     }
 
     /**
-     * @param array{channel_id: int, user_id: int, title: string, content: string} $data
+     * @param array{channel_id: int, user_id: int, title: string, content: string, challenge_id?: int|null} $data
      */
     public static function create(array $data): self
     {
-        self::execute(
-            'INSERT INTO threads (channel_id, user_id, title, content, status)
-             VALUES (?, ?, ?, ?, ?)',
-            [
-                $data['channel_id'],
-                $data['user_id'],
-                $data['title'],
-                $data['content'],
-                'open',
-            ]
-        );
+        $challengeId = $data['challenge_id'] ?? null;
+        if ($challengeId !== null) {
+            self::execute(
+                'INSERT INTO threads (channel_id, user_id, challenge_id, title, content, status)
+                 VALUES (?, ?, ?, ?, ?, ?)',
+                [
+                    $data['channel_id'],
+                    $data['user_id'],
+                    $challengeId,
+                    $data['title'],
+                    $data['content'],
+                    'open',
+                ]
+            );
+        } else {
+            self::execute(
+                'INSERT INTO threads (channel_id, user_id, title, content, status)
+                 VALUES (?, ?, ?, ?, ?)',
+                [
+                    $data['channel_id'],
+                    $data['user_id'],
+                    $data['title'],
+                    $data['content'],
+                    'open',
+                ]
+            );
+        }
 
         $thread = self::find((int) self::lastInsertId());
         if ($thread === null) {

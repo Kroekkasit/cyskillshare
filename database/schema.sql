@@ -120,6 +120,7 @@ CREATE TABLE `threads` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `channel_id` INT UNSIGNED NOT NULL,
   `user_id` BIGINT UNSIGNED NOT NULL,
+  `challenge_id` BIGINT UNSIGNED NULL DEFAULT NULL,
   `title` VARCHAR(200) NOT NULL,
   `content` MEDIUMTEXT NOT NULL,
   `status` ENUM('open', 'solved', 'closed') NOT NULL DEFAULT 'open',
@@ -132,6 +133,7 @@ CREATE TABLE `threads` (
   PRIMARY KEY (`id`),
   KEY `threads_channel_id_index` (`channel_id`),
   KEY `threads_user_id_index` (`user_id`),
+  KEY `threads_challenge_id_index` (`challenge_id`),
   KEY `threads_status_index` (`status`),
   KEY `threads_created_at_index` (`created_at`),
   KEY `threads_deleted_at_index` (`deleted_at`),
@@ -140,6 +142,7 @@ CREATE TABLE `threads` (
     FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`) ON DELETE CASCADE,
   CONSTRAINT `threads_user_id_fk`
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  -- threads_challenge_id_fk added after challenges table exists (see arena tables below)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `replies` (

@@ -26,6 +26,13 @@ use App\Core\Auth;
     <div class="flash flash-error">This discussion was removed (staff view).</div>
 <?php endif; ?>
 
+<?php if ($thread->challenge_id !== null): ?>
+    <div class="flash flash-error arena-spoiler-banner" role="alert">
+        <strong>⚠ Spoiler Warning</strong> — This discussion is linked to a Cyber Arena challenge and may contain hints or solutions.
+        <a href="<?= e(url('/arena/challenges/' . $thread->challenge_id)) ?>">Return to challenge</a>
+    </div>
+<?php endif; ?>
+
 <article class="card thread-detail">
     <header class="thread-detail-head">
         <h1><?= e($thread->title) ?></h1>

@@ -2,8 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Controllers\ArenaAdminController;
+use App\Controllers\ArenaController;
+use App\Controllers\ArenaEventController;
+use App\Controllers\ArenaLeaderboardController;
+use App\Controllers\ArenaProgressController;
 use App\Controllers\AuthController;
 use App\Controllers\BookmarkController;
+use App\Controllers\ChallengeController;
 use App\Controllers\CommunityController;
 use App\Controllers\HomeController;
 use App\Controllers\ModerationController;
@@ -69,3 +75,35 @@ $router->get('/profile/{username}', [ProfileController::class, 'show']);
 $router->post('/profile/{username}', [ProfileController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/u/{username}', [ProfileController::class, 'show']);
 $router->get('/admin/demo', [ProfileController::class, 'adminDemo'], [AuthMiddleware::class]);
+
+// Cyber Arena — static paths before parameterized routes
+$router->get('/arena', [ArenaController::class, 'index']);
+$router->get('/arena/challenges', [ChallengeController::class, 'index']);
+$router->get('/arena/challenges/{id}', [ChallengeController::class, 'show']);
+$router->post('/arena/challenges/{id}/submit', [ChallengeController::class, 'submit'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/challenges/{id}/hints/{hintId}/reveal', [ChallengeController::class, 'revealHint'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/arena/challenges/{id}/files/{fileId}', [ChallengeController::class, 'download']);
+$router->get('/arena/challenges/{id}/download/{fileId}', [ChallengeController::class, 'download']);
+$router->post('/arena/challenges/{id}/discuss', [ChallengeController::class, 'discuss'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/arena/categories/{slug}', [ChallengeController::class, 'category']);
+$router->get('/arena/progress', [ArenaProgressController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/arena/leaderboard', [ArenaLeaderboardController::class, 'index']);
+$router->get('/arena/events', [ArenaEventController::class, 'index']);
+$router->get('/arena/events/{id}', [ArenaEventController::class, 'show']);
+
+// Arena admin
+$router->get('/arena/admin/challenges', [ArenaAdminController::class, 'challenges'], [AuthMiddleware::class]);
+$router->get('/arena/admin/challenges/new', [ArenaAdminController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/arena/admin/challenges', [ArenaAdminController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/arena/admin/challenges/{id}/edit', [ArenaAdminController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/arena/admin/challenges/{id}', [ArenaAdminController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/admin/challenges/{id}/publish', [ArenaAdminController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/admin/challenges/{id}/archive', [ArenaAdminController::class, 'archive'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/admin/challenges/{id}/hints', [ArenaAdminController::class, 'addHint'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/admin/hints/{id}', [ArenaAdminController::class, 'editHint'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/admin/hints/{id}/delete', [ArenaAdminController::class, 'deleteHint'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/admin/challenges/{id}/files', [ArenaAdminController::class, 'uploadFile'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/arena/admin/files/{id}/delete', [ArenaAdminController::class, 'deleteFile'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/arena/admin/events', [ArenaAdminController::class, 'events'], [AuthMiddleware::class]);
+$router->get('/arena/admin/events/new', [ArenaAdminController::class, 'createEventForm'], [AuthMiddleware::class]);
+$router->post('/arena/admin/events', [ArenaAdminController::class, 'createEvent'], [AuthMiddleware::class, CsrfMiddleware::class]);

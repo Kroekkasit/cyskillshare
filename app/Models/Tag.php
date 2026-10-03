@@ -131,6 +131,64 @@ final class Tag extends Model
         return $map;
     }
 
+    /**
+     * @param list<string> $rawTags
+     */
+    public static function syncForChallenge(int $challengeId, array $rawTags): void
+    {
+        self::execute('DELETE FROM challenge_tags WHERE challenge_id = ?', [$challengeId]);
+
+        $seen = [];
+        $count = 0;
+        foreach ($rawTags as $raw) {
+            if ($count >= 12) {
+                break;
+            }
+            $tag = self::findOrCreate((string) $raw);
+            if ($tag === null || isset($seen[$tag->id])) {
+                continue;
+            }
+            self::execute(
+                'INSERT INTO challenge_tags (challenge_id, tag_id) VALUES (?, ?)',
+                [$challengeId, $tag->id]
+            );
+            $seen[$tag->id] = true;
+            $count++;
+        }
+    }
+
+    /**
+     * @param list<int> $challengeIds
+     * @return array<int, list<array{id:int,name:string,slug:string}>>
+     */
+    public static function forChallenges(array $challengeIds): array
+    {
+        if ($challengeIds === []) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($challengeIds), '?'));
+        $rows = self::fetchAll(
+            "SELECT ct.challenge_id, t.id, t.name, t.slug
+             FROM challenge_tags ct
+             INNER JOIN tags t ON t.id = ct.tag_id
+             WHERE ct.challenge_id IN ({$placeholders})
+             ORDER BY t.name ASC",
+            $challengeIds
+        );
+
+        $map = [];
+        foreach ($rows as $row) {
+            $cid = (int) $row['challenge_id'];
+            $map[$cid][] = [
+                'id' => (int) $row['id'],
+                'name' => (string) $row['name'],
+                'slug' => (string) $row['slug'],
+            ];
+        }
+        return $map;
+    }
+
     public function threadCount(): int
     {
         $row = self::fetch(

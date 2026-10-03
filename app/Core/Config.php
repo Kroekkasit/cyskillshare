@@ -14,6 +14,7 @@ final class Config
         $files = [
             'app' => $directory . '/app.php',
             'database' => $directory . '/database.php',
+            'arena' => $directory . '/arena.php',
         ];
 
         foreach ($files as $key => $file) {

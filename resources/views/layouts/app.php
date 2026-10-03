@@ -58,6 +58,10 @@ $isCommunity = is_array($channelsGrouped);
                href="<?= e(url('/community')) ?>">
                 <span class="icon">#</span> Community
             </a>
+            <a class="<?= str_starts_with($path, '/arena') ? 'is-active' : '' ?>"
+               href="<?= e(url('/arena')) ?>">
+                <span class="icon">⚔</span> Arena
+            </a>
             <?php if ($user): ?>
                 <a class="<?= str_starts_with($path, '/notifications') ? 'is-active' : '' ?>" href="<?= e(url('/notifications')) ?>">
                     <span class="icon">🔔</span> Notifications

@@ -6,6 +6,7 @@ This repository currently contains:
 
 - **Phase 1** — secure PHP foundation (auth, PDO, CSRF, RBAC, routing)
 - **Phase 2** — Community & Discussion system
+- **Phase 3** — Cyber Arena / CTF challenge system
 
 ## Requirements
 
@@ -28,13 +29,26 @@ docker compose up -d --build
 
 Open http://localhost:8080
 
-Schema and seed data load automatically on the **first** database container start.
+Schema and seed data (including Arena challenges/events) load automatically on the **first** database container start:
+
+1. `01-schema.sql` — core schema  
+2. `02-seed.sql` — users, community  
+3. `03-arena-schema.sql` — Arena tables  
+4. `04-seed-arena.sql` — challenges, hints, events  
+5. `05-arena-fk.sql` — `threads.challenge_id` FK  
 
 ### Reset database (re-seed)
 
 ```bash
 docker compose down -v
 docker compose up -d --build
+```
+
+To apply Arena migration on an **existing** volume without wiping:
+
+```bash
+docker exec -i cyskillshare-db mysql -uroot -prootsecret cyskillshare < database/migrations/003_phase3_arena.sql
+docker exec -i cyskillshare-db mysql -uroot -prootsecret cyskillshare < database/seed_arena.sql
 ```
 
 ### Services
@@ -92,6 +106,76 @@ Accounts with `moderator` or `admin` roles can:
 - Soft-delete content
 
 Actions are written to `activity_logs`.
+
+## Cyber Arena (Phase 3)
+
+Practice cybersecurity skills through hands-on challenges. Arena points are **separate from future global XP**.
+
+Features:
+
+- Challenge catalog (search, filter, sort, pagination)
+- Categories & difficulty
+- Flag submission (server-side verification; flags stored as SHA-256 hashes)
+- Progressive hints with point penalties (once per user/hint)
+- Scoring: `max(0, base_points − hint_penalties)` stored at solve time
+- Solve tracking + Arena point transactions
+- My Progress (`/arena/progress`)
+- Leaderboards (all time / this month / semester — dates in `config/arena.php`)
+- CTF events with event-only scoring
+- Challenge file downloads (staff upload; storage under `storage/challenges/`, not public)
+- Challenge ↔ Community discussion (`threads.challenge_id`, spoiler warning)
+- Instructor/admin challenge & event management
+- Writeups stub table (full writeup editor deferred)
+
+### Key URLs
+
+| Path | Purpose |
+|------|---------|
+| `/arena` | Arena home / dashboard |
+| `/arena/challenges` | Challenge catalog |
+| `/arena/challenges/{id}` | Challenge detail + submit |
+| `/arena/categories/{slug}` | Category progress |
+| `/arena/events` | CTF / practice events |
+| `/arena/leaderboard` | Arena leaderboard |
+| `/arena/progress` | Personal progress |
+| `/arena/admin/challenges` | Staff challenge admin |
+
+### How to create a challenge
+
+1. Login as `instructor1`, `moderator1`, or `admin`
+2. Open `/arena/admin/challenges/new`
+3. Fill Basic Information, Content, Scoring, Flag, Tags, Publishing
+4. Save as **draft** or **published**
+5. On edit: add hints, attach files, then **Publish**
+
+### How scoring & hints work
+
+- Base points come from the challenge
+- Revealing a hint applies its penalty once (recorded in `challenge_hint_usage`)
+- On first correct flag: awarded points = base − sum(penalties), never below 0
+- Later flag/points changes do not rewrite historical solves
+- Changing flag/points after solves requires explicit confirmation in the admin form
+
+### How to create an event
+
+1. `/arena/admin/events/new`
+2. Set type (`practice` / `ctf` / …), status, visibility, start/end
+3. Assign existing challenges (no challenge duplication)
+4. Event leaderboard sums points only from those challenges
+
+### Leaderboard tie-break
+
+1. Points DESC  
+2. Solved count DESC  
+3. Earliest first solve ASC  
+
+### Development seed flags
+
+Seed challenges use flags like `FLAG{cyskillshare_sqli_001}` (documented in `database/seed_arena.sql` comments). **Development only** — never use real secrets.
+
+### Arena security testing
+
+See `docs/ARENA_TEST_CHECKLIST.md`. Especially verify: no flag leak in HTML/JS, student cannot access admin/drafts, rate limiting on submit, duplicate solve prevention, safe file upload/download.
 
 ## Demo accounts (DEVELOPMENT ONLY)
 
