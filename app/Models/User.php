@@ -144,6 +144,28 @@ final class User extends Model
         );
     }
 
+    public function removeRole(string $roleName): void
+    {
+        $role = Role::findByName($roleName);
+        if ($role === null) {
+            throw new \InvalidArgumentException("Unknown role: {$roleName}");
+        }
+
+        self::execute(
+            'DELETE FROM user_roles WHERE user_id = ? AND role_id = ?',
+            [$this->id, $role->id]
+        );
+    }
+
+    public function updateStatus(string $status): void
+    {
+        if (!in_array($status, ['active', 'suspended', 'banned'], true)) {
+            throw new \InvalidArgumentException('Invalid status.');
+        }
+        self::execute('UPDATE users SET status = ? WHERE id = ?', [$status, $this->id]);
+        $this->status = $status;
+    }
+
     public function hasRole(string $roleName): bool
     {
         return in_array($roleName, $this->roleNames(), true);

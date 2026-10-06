@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AdminActivityController;
+use App\Controllers\AdminController;
+use App\Controllers\AdminUserController;
 use App\Controllers\ArenaAdminController;
 use App\Controllers\ArenaController;
 use App\Controllers\ArenaEventController;
@@ -295,3 +298,13 @@ $router->post('/recruitment/{id}/apply', [RecruitmentController::class, 'apply']
 $router->get('/admin/collaboration', [CollabAdminController::class, 'index'], [AuthMiddleware::class]);
 $router->post('/admin/mentors/{id}/verify', [CollabAdminController::class, 'verifyMentor'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/admin/groups/{id}/suspend', [CollabAdminController::class, 'suspendGroup'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// Platform admin console (dashboard, activity logs, users, system)
+$router->get('/admin', [AdminController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/admin/system', [AdminController::class, 'system'], [AuthMiddleware::class]);
+$router->get('/admin/activity', [AdminActivityController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/admin/users', [AdminUserController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/admin/users/{id}', [AdminUserController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/admin/users/{id}/status', [AdminUserController::class, 'updateStatus'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/users/{id}/roles', [AdminUserController::class, 'assignRole'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/admin/users/{id}/roles/remove', [AdminUserController::class, 'removeRole'], [AuthMiddleware::class, CsrfMiddleware::class]);

@@ -4,6 +4,7 @@
  * @var bool $canRecalculate
  */
 ?>
+<?php \App\Core\View::partial('admin/partials/nav'); ?>
 <?php \App\Core\View::partial('skills/partials/skill-nav'); ?>
 
 <section class="page-header">

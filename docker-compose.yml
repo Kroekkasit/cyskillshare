@@ -43,6 +43,8 @@ services:
       - ./database/seed_labs.sql:/docker-entrypoint-initdb.d/13-seed-labs.sql:ro
       - ./database/collaboration_schema.sql:/docker-entrypoint-initdb.d/14-collaboration-schema.sql:ro
       - ./database/seed_collaboration.sql:/docker-entrypoint-initdb.d/15-seed-collaboration.sql:ro
+      # Tighten app user after schema/seed (SELECT/INSERT/UPDATE/DELETE only)
+      - ./database/grants_app_user.sql:/docker-entrypoint-initdb.d/99-least-privilege.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
@@ -55,6 +57,24 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+
+  # Development only — do not expose in production.
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: cyskillshare-phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+      UPLOAD_LIMIT: 64M
+    ports:
+      - "${PHPMYADMIN_PORT:-8081}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - cyskillshare
+    restart: unless-stopped
 
 networks:
   cyskillshare:

@@ -115,6 +115,12 @@ $isCommunity = is_array($channelsGrouped);
                         <span class="icon">⚑</span> Moderation
                     </a>
                 <?php endif; ?>
+                <?php if (Auth::hasAnyRole(['admin', 'instructor', 'moderator', 'mentor'])): ?>
+                    <a class="<?= $path === '/admin' || str_starts_with($path, '/admin/') || str_starts_with($path, '/arena/admin') ? 'is-active' : '' ?>"
+                       href="<?= e(url('/admin')) ?>">
+                        <span class="icon">⚙</span> Admin
+                    </a>
+                <?php endif; ?>
             <?php else: ?>
                 <a href="<?= e(url('/login')) ?>"><span class="icon">→</span> Login</a>
                 <a href="<?= e(url('/register')) ?>"><span class="icon">+</span> Register</a>

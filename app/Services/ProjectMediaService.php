@@ -88,8 +88,16 @@ final class ProjectMediaService
             [$projectId, $stored, $rel, mb_substr($original, 0, 180), $mime, $size, $caption]
         );
 
+        $imageId = (int) Database::lastInsertId();
+        ActivityLogService::log($ownerId, 'project_image_uploaded', 'project', $projectId, [
+            'image_id' => $imageId,
+            'original_name' => mb_substr($original, 0, 180),
+            'mime_type' => $mime,
+            'file_size' => $size,
+        ]);
+
         return [
-            'id' => (int) Database::lastInsertId(),
+            'id' => $imageId,
             'storage_path' => $rel,
         ];
     }
@@ -155,5 +163,9 @@ final class ProjectMediaService
             // ignore missing file
         }
         Database::execute('DELETE FROM project_images WHERE id = ?', [$imageId]);
+        ActivityLogService::log($ownerId, 'project_image_deleted', 'project', (int) $image['project_id'], [
+            'image_id' => $imageId,
+            'original_name' => (string) ($image['original_name'] ?? ''),
+        ]);
     }
 }

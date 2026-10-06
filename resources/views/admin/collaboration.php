@@ -5,6 +5,7 @@
  * @var bool $canVerify
  * @var bool $canManagePlatform
  */
+\App\Core\View::partial('admin/partials/nav');
 ?>
 <section class="page-header">
     <h1>Collaboration Admin</h1>

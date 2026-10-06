@@ -32,7 +32,8 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open http://localhost:8080
+Open http://localhost:8080  
+phpMyAdmin (dev): http://localhost:8081 — login with `root` / `DB_ROOT_PASSWORD` or `cyskillshare` / `DB_PASSWORD`
 
 Schema and seed data (including Arena challenges/events) load automatically on the **first** database container start:
 
@@ -74,6 +75,7 @@ docker exec -i cyskillshare-db mysql -uroot -prootsecret cyskillshare < database
 |---------|-----------|-------------|
 | `app` | PHP 8.2 + Apache | http://localhost:8080 |
 | `db` | MySQL 8.4 | Docker network only (`DB_HOST=db`) |
+| `phpmyadmin` | phpMyAdmin 5.2 | http://localhost:8081 (dev only) |
 
 ## Community System (Phase 2)
 
@@ -451,6 +453,21 @@ See `docs/ARENA_TEST_CHECKLIST.md`. Especially verify: no flag leak in HTML/JS, 
 | `moderator1` | `Student@123!` | moderator, student |
 | `instructor1` | `Student@123!` | instructor, student |
 
+## Admin console
+
+Staff hub at **http://localhost:8080/admin** (sidebar → Admin).
+
+| Path | Who | Purpose |
+|------|-----|---------|
+| `/admin` | admin, instructor, moderator, mentor | Dashboard + tool directory |
+| `/admin/activity` | admin | Security audit trail (`activity_logs`) |
+| `/admin/users` | admin | User list, status, RBAC roles |
+| `/admin/users/{id}` | admin | Manage one user |
+| `/admin/system` | admin | Env, DB user, session settings |
+| Existing `/admin/skills`, `/admin/labs`, … | role-gated | Module admin tools |
+
+Demo: login as `admin` / `Admin@123!`.
+
 ## Security testing notes
 
 Verify manually:
@@ -458,12 +475,25 @@ Verify manually:
 - Anonymous users cannot create/reply/vote
 - User A cannot edit User B’s thread/reply (403)
 - Students cannot open `/moderation/reports`
-- Missing/invalid CSRF rejected
+- Missing/invalid CSRF rejected (logged as `csrf_rejected`)
 - `<script>alert(1)</script>` renders as text
 - `' OR '1'='1` does not bypass auth/search
 - Locked threads reject reply POSTs
 - Vote uniqueness + no self-vote
 - Mass-assignment fields (`is_pinned`, `user_id`, etc.) are not taken from raw `$_POST`
+- App DB user is **not** root; grants are SELECT/INSERT/UPDATE/DELETE only (`database/grants_app_user.sql`)
+- Idle session expires after `SESSION_LIFETIME` seconds without activity
+- With `APP_DEBUG=false`, SQL errors and file paths are not shown to browsers
+- File uploads (challenge files + project images) appear in `activity_logs`
+
+### Apply least-privilege grants on an existing database volume
+
+Fresh `docker compose up` runs `99-least-privilege.sql` automatically. For an already-initialized volume:
+
+```bash
+docker exec -i cyskillshare-db mysql -uroot -prootsecret < database/grants_app_user.sql
+docker exec cyskillshare-db mysql -uroot -prootsecret -e "SHOW GRANTS FOR 'cyskillshare'@'%';"
+```
 
 ## Directory structure
 

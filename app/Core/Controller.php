@@ -43,6 +43,15 @@ abstract class Controller
     protected function requireCsrf(): void
     {
         if (!Csrf::validateRequest()) {
+            if (class_exists(\App\Services\ActivityLogService::class)) {
+                \App\Services\ActivityLogService::log(
+                    Auth::id(),
+                    'csrf_rejected',
+                    'request',
+                    null,
+                    ['path' => $_SERVER['REQUEST_URI'] ?? null]
+                );
+            }
             http_response_code(419);
             Session::flash('error', 'Invalid or missing CSRF token. Please try again.');
             $referer = $_SERVER['HTTP_REFERER'] ?? '/';

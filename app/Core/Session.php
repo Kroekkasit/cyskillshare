@@ -6,17 +6,21 @@ namespace App\Core;
 
 final class Session
 {
+    private const CREATED_KEY = '_created_at';
+    private const ACTIVITY_KEY = '_last_activity';
+
     private static bool $started = false;
 
     public static function start(): void
     {
         if (self::$started || session_status() === PHP_SESSION_ACTIVE) {
             self::$started = true;
+            self::enforceTimeout();
             return;
         }
 
         $name = (string) config('app.session.name', 'cyskillshare_session');
-        $lifetime = (int) config('app.session.lifetime', 7200);
+        $lifetime = max(60, (int) config('app.session.lifetime', 7200));
         $secure = (bool) config('app.session.secure', false);
         $sameSite = (string) config('app.session.same_site', 'Lax');
         $httpOnly = (bool) config('app.session.http_only', true);
@@ -25,6 +29,12 @@ final class Session
         if (!$secure && (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')) {
             $secure = true;
         }
+
+        // Align PHP GC with configured idle timeout
+        ini_set('session.gc_maxlifetime', (string) $lifetime);
+        ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.cookie_httponly', '1');
 
         session_name($name);
 
@@ -39,9 +49,50 @@ final class Session
         session_start();
         self::$started = true;
 
-        if (!isset($_SESSION['_created_at'])) {
-            $_SESSION['_created_at'] = time();
+        self::enforceTimeout();
+    }
+
+    /**
+     * Idle session timeout: expire after SESSION_LIFETIME seconds without activity.
+     */
+    private static function enforceTimeout(): void
+    {
+        $lifetime = max(60, (int) config('app.session.lifetime', 7200));
+        $now = time();
+
+        if (!isset($_SESSION[self::CREATED_KEY])) {
+            $_SESSION[self::CREATED_KEY] = $now;
         }
+
+        $lastActivity = isset($_SESSION[self::ACTIVITY_KEY])
+            ? (int) $_SESSION[self::ACTIVITY_KEY]
+            : (int) $_SESSION[self::CREATED_KEY];
+
+        if (isset($_SESSION[self::ACTIVITY_KEY]) && ($now - $lastActivity) > $lifetime) {
+            $hadUser = isset($_SESSION['user_id']);
+            $userId = $hadUser && is_numeric($_SESSION['user_id'])
+                ? (int) $_SESSION['user_id']
+                : null;
+
+            $_SESSION = [];
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
+
+            $_SESSION[self::CREATED_KEY] = $now;
+            $_SESSION[self::ACTIVITY_KEY] = $now;
+
+            if ($hadUser) {
+                if ($userId !== null && class_exists(\App\Services\ActivityLogService::class)) {
+                    \App\Services\ActivityLogService::log($userId, 'session_timeout', 'user', $userId);
+                }
+                self::flash('error', 'Your session expired due to inactivity. Please log in again.');
+            }
+
+            return;
+        }
+
+        $_SESSION[self::ACTIVITY_KEY] = $now;
     }
 
     public static function get(string $key, mixed $default = null): mixed
@@ -79,6 +130,7 @@ final class Session
     public static function regenerate(bool $deleteOld = true): void
     {
         session_regenerate_id($deleteOld);
+        $_SESSION[self::ACTIVITY_KEY] = time();
     }
 
     public static function destroy(): void

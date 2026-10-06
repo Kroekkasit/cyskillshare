@@ -3,6 +3,7 @@
  * @var list<array<string, mixed>> $labs
  */
 ?>
+<?php \App\Core\View::partial('admin/partials/nav'); ?>
 <section class="page-header">
     <div>
         <h1>Manage Labs</h1>
