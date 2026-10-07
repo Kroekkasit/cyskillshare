@@ -43,6 +43,7 @@ services:
       - ./database/seed_labs.sql:/docker-entrypoint-initdb.d/13-seed-labs.sql:ro
       - ./database/collaboration_schema.sql:/docker-entrypoint-initdb.d/14-collaboration-schema.sql:ro
       - ./database/seed_collaboration.sql:/docker-entrypoint-initdb.d/15-seed-collaboration.sql:ro
+      - ./database/seed_thai_content.sql:/docker-entrypoint-initdb.d/16-seed-thai-content.sql:ro
       # Tighten app user after schema/seed (SELECT/INSERT/UPDATE/DELETE only)
       - ./database/grants_app_user.sql:/docker-entrypoint-initdb.d/99-least-privilege.sql:ro
     healthcheck:

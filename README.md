@@ -35,6 +35,12 @@ docker compose up -d --build
 Open http://localhost:8080  
 phpMyAdmin (dev): http://localhost:8081 — login with `root` / `DB_ROOT_PASSWORD` or `cyskillshare` / `DB_PASSWORD`
 
+Thai community demo content (threads, labs, writeups, knowledge) loads from `database/seed_thai_content.sql`. On an existing volume:
+
+```bash
+docker exec -i cyskillshare-db mysql -uroot -prootsecret --default-character-set=utf8mb4 cyskillshare < database/seed_thai_content.sql
+```
+
 Schema and seed data (including Arena challenges/events) load automatically on the **first** database container start:
 
 1. `01-schema.sql` — core schema  

@@ -235,11 +235,11 @@ SELECT u.id, r.id FROM users u, roles r WHERE u.username = 'instructor1' AND r.n
 -- Phase 2 community seed content
 -- ---------------------------------------------------------------------------
 
--- Pinned welcome
+-- Pinned welcome (bilingual — KKU CoC)
 INSERT INTO `threads` (`channel_id`, `user_id`, `title`, `content`, `status`, `is_pinned`)
 SELECT ch.id, u.id,
-  'Welcome to CySkillShare Community',
-  'Welcome to the cybersecurity learning community at College of Computing, KKU.\n\nPlease:\n- Be respectful\n- Do not share exam answers that violate academic integrity\n- Prefer technical discussion with evidence\n- Use tags so others can find your posts\n\nAsk → Discuss → Help → Solve → Share Knowledge',
+  'ยินดีต้อนรับสู่ CySkillShare / Welcome',
+  'ยินดีต้อนรับสู่ชุมชนเรียนรู้ไซเบอร์ของวิทยาลัยการคอมพิวเตอร์ มข.\n\nกรุณา:\n- เคารพกันและกัน\n- ห้ามแชร์เฉลยข้อสอบที่ผิดระเบียบวิชาการ\n- คุยเชิงเทคนิคพร้อมหลักฐาน\n- ติดแท็กให้ค้นหาได้ง่าย\n\nถาม → คุย → ช่วย → แก้ → แชร์ความรู้\n\n---\nWelcome to the cybersecurity learning community at College of Computing, KKU.\nAsk → Discuss → Help → Solve → Share Knowledge',
   'open', 1
 FROM channels ch, users u
 WHERE ch.slug = 'general' AND u.username = 'moderator1' LIMIT 1;
